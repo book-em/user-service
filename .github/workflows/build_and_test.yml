@@ -1,0 +1,37 @@
+name: Build and test on develop
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+    paths:
+      - 'src/**'
+      - 'compose.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.24
+
+      - name: Run test script
+        run: |
+          chmod +x ./run-tests.sh
+          ./run-tests.sh
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build service
+        run: docker compose build
