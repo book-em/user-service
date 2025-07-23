@@ -29,6 +29,12 @@ services:
     ports:
       - "5432:5432"
 
+  adminer:   
+    image: adminer:4.8.0-standalone
+    restart: always
+    ports:
+      - "8002:8080"
+
 volumes:
   pgdata:
     name: bookem-user-service-db-volume
