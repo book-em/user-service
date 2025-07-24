@@ -17,5 +17,6 @@ func NewRouteUserController(userController controllers.UserController) UserRoute
 func (uc *UserRouteController) UserRoute(rg *gin.RouterGroup) {
 
 	router := rg.Group("users")
+	router.POST("/register", uc.userController.RegisterUser)
 
 }
