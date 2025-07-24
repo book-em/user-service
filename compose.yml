@@ -32,6 +32,7 @@ services:
   adminer:   
     image: adminer:4.8.0-standalone
     restart: always
+    container_name: bookem-user-service-adminer
     ports:
       - "8002:8080"
 
