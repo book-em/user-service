@@ -1,10 +1,4 @@
-package model
-
-import (
-	"fmt"
-
-	"gorm.io/gorm"
-)
+package domain
 
 type UserRole string
 
@@ -24,16 +18,4 @@ type User struct {
 	Surname   string   `json:"surname"  gorm:"type:varchar(60);not null;"`
 	Role      UserRole `json:"role"     gorm:"type:varchar(5);not null;check:role IN ('guest','host','admin')"`
 	Address   Address  `json:"address"`
-}
-
-type UserDTO struct {
-	Username string  `json:"username" binding:"required"`
-	Password string  `json:"password" binding:"required"`
-	Email    string  `json:"email" binding:"required"`
-	Name     string  `json:"name" binding:"required"`
-	Surname  string  `json:"surname" binding:"required"`
-	Role     string  `json:"role" binding:"required"`
-	Address  Address `json:"address" binding:"required"`
-}
-
 }
