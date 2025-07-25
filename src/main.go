@@ -11,9 +11,10 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	controllers "bookem-user-service/controllers"
-	models "bookem-user-service/models"
-	"bookem-user-service/routes"
+	api "bookem-user-service/api"
+	domain "bookem-user-service/domain"
+	repo "bookem-user-service/repo"
+	service "bookem-user-service/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,13 +27,10 @@ var (
 	server *gin.Engine
 	DB     *gorm.DB
 	RawDB  *sql.DB
-
-	UserController      controllers.UserController
-	UserRouteController routes.UserRouteController
 )
 
 func syncDatabase() {
-	DB.AutoMigrate(&models.User{}, &models.Address{})
+	DB.AutoMigrate(&domain.User{}, &domain.Address{})
 }
 
 func connectToDb() {
@@ -64,8 +62,11 @@ func main() {
 	syncDatabase()
 
 	server = gin.Default()
-	UserController = controllers.NewUserController(DB)
-	UserRouteController = routes.NewRouteUserController(UserController)
+
+	userRepo := repo.NewUserRepository(DB)
+	userService := service.NewUserService(userRepo)
+	userHandler := api.NewUserHandler(userService)
+	userRoute := *api.NewUserRoute(userHandler)
 
 	server.GET("/ping", func(c *gin.Context) {
 		err := RawDB.Ping()
@@ -78,7 +79,7 @@ func main() {
 	})
 
 	router := server.Group("/api")
-	UserRouteController.UserRoute(router)
+	userRoute.UserRoute(router)
 
 	server.Run()
 }
