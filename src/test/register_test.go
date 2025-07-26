@@ -12,11 +12,11 @@ import (
 	mock "github.com/stretchr/testify/mock"
 )
 
-type MockUserRepo struct {
+type MockRepo struct {
 	mock.Mock
 }
 
-func (m *MockUserRepo) FindByUsernameOrEmail(username, email string) *domain.User {
+func (m *MockRepo) FindByUsernameOrEmail(username, email string) *domain.User {
 	args := m.Called(username, email)
 	if user, ok := args.Get(0).(*domain.User); ok {
 		return user
@@ -24,7 +24,7 @@ func (m *MockUserRepo) FindByUsernameOrEmail(username, email string) *domain.Use
 	return nil
 }
 
-func (m *MockUserRepo) Create(user *domain.User) error {
+func (m *MockRepo) Create(user *domain.User) error {
 	args := m.Called(user)
 	return args.Error(0)
 }
@@ -53,8 +53,8 @@ var defaultUser = &domain.User{
 }
 
 func TestSuccess(t *testing.T) {
-	mockRepo := new(MockUserRepo)
-	svc := service.NewUserService(mockRepo)
+	mockRepo := new(MockRepo)
+	svc := service.NewService(mockRepo)
 
 	dto := *defaultUserDTO
 
@@ -71,8 +71,8 @@ func TestSuccess(t *testing.T) {
 }
 
 func TestUsernameExists(t *testing.T) {
-	mockRepo := new(MockUserRepo)
-	svc := service.NewUserService(mockRepo)
+	mockRepo := new(MockRepo)
+	svc := service.NewService(mockRepo)
 
 	dto := *defaultUserDTO
 	dto.Username = "username"
@@ -89,8 +89,8 @@ func TestUsernameExists(t *testing.T) {
 }
 
 func TestEmailExists(t *testing.T) {
-	mockRepo := new(MockUserRepo)
-	svc := service.NewUserService(mockRepo)
+	mockRepo := new(MockRepo)
+	svc := service.NewService(mockRepo)
 
 	dto := *defaultUserDTO
 	dto.Username = "user1"
@@ -109,8 +109,8 @@ func TestEmailExists(t *testing.T) {
 }
 
 func TestCreateFails(t *testing.T) {
-	mockRepo := new(MockUserRepo)
-	svc := service.NewUserService(mockRepo)
+	mockRepo := new(MockRepo)
+	svc := service.NewService(mockRepo)
 
 	dto := *defaultUserDTO
 
