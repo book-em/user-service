@@ -3,6 +3,7 @@ package api
 import (
 	domain "bookem-user-service/domain"
 	service "bookem-user-service/service"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ func (h *UserHandler) RegisterUser(ctx *gin.Context) {
 
 	var dto domain.UserDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
-		ctx.Error(domain.NewAppError("Invalid input", http.StatusBadRequest))
+		ctx.Error(fmt.Errorf("%w: %v", domain.ErrInvalidValue, err))
 		return
 	}
 
