@@ -9,15 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserHandler struct {
-	service service.UserService
+type Handler struct {
+	userService service.UserService
 }
 
-func NewUserHandler(s service.UserService) UserHandler {
-	return UserHandler{s}
+func NewHandler(us service.UserService) Handler {
+	return Handler{us}
 }
 
-func (h *UserHandler) RegisterUser(ctx *gin.Context) {
+func (h *Handler) RegisterUser(ctx *gin.Context) {
 
 	var dto domain.UserDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
@@ -25,7 +25,7 @@ func (h *UserHandler) RegisterUser(ctx *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Register(&dto)
+	user, err := h.userService.Register(&dto)
 	if err != nil {
 		ctx.Error(err)
 		return
