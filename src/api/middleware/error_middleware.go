@@ -3,6 +3,7 @@ package middleware
 import (
 	domain "bookem-user-service/domain"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,14 +11,10 @@ import (
 
 func MapErrorToStatus(err error) int {
 	switch {
-	case errors.Is(err, domain.ErrInvalidEmail):
+	case errors.Is(err, domain.ErrInvalidValue):
 		return http.StatusBadRequest
-	case errors.Is(err, domain.ErrUserExists):
+	case errors.Is(err, domain.ErrUsernameExists), errors.Is(err, domain.ErrEmailExists):
 		return http.StatusConflict
-	case errors.Is(err, domain.ErrEmailExists):
-		return http.StatusConflict
-	case errors.Is(err, domain.ErrHashingPassword):
-		return http.StatusInternalServerError
 	default:
 		return http.StatusInternalServerError
 	}
@@ -32,6 +29,10 @@ func ErrorHandlingMiddleware() gin.HandlerFunc {
 		}
 
 		err := c.Errors.Last().Err
+
+		// Some debug variable or mode can be used
+		log.Printf("[DEBUG] Error: %v\n", err)
+
 		if appErr, ok := err.(*domain.AppError); ok {
 			c.JSON(appErr.StatusCode, gin.H{"error": appErr.Message})
 			return
