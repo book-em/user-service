@@ -2,6 +2,7 @@ services:
   user-service:
     container_name: bookem-user-service
     image: magley/bookem-user-service
+    restart: always
     build: ./src
     ports:
       - "8080:8080"
