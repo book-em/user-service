@@ -6,19 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserRoute struct {
-	userHandler UserHandler
+type Route struct {
+	handler Handler
 }
 
-func NewUserRoute(userHandler UserHandler) *UserRoute {
-	return &UserRoute{userHandler}
+func NewRoute(handler Handler) *Route {
+	return &Route{handler}
 }
 
-func (ur *UserRoute) UserRoute(rg *gin.RouterGroup) {
-
-	router := rg.Group("users")
-
-	router.Use(middleware.ErrorHandlingMiddleware())
-	router.POST("/register", ur.userHandler.RegisterUser)
-
+func (r *Route) Route(rg *gin.RouterGroup) {
+	rg.Use(middleware.ErrorHandlingMiddleware())
+	rg.POST("/register", r.handler.RegisterUser)
 }

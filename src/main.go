@@ -65,8 +65,8 @@ func main() {
 
 	userRepo := repo.NewUserRepository(DB)
 	userService := service.NewUserService(userRepo)
-	userHandler := api.NewUserHandler(userService)
-	userRoute := *api.NewUserRoute(userHandler)
+	handler := api.NewHandler(userService)
+	route := *api.NewRoute(handler)
 
 	server.GET("/ping", func(c *gin.Context) {
 		err := RawDB.Ping()
@@ -78,8 +78,8 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "Pong"})
 	})
 
-	router := server.Group("/api")
-	userRoute.UserRoute(router)
+	rg := server.Group("/api")
+	route.Route(rg)
 
 	server.Run()
 }
