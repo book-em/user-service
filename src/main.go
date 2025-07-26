@@ -25,12 +25,12 @@ func Add(a int, b int) int {
 
 var (
 	server *gin.Engine
-	DB     *gorm.DB
-	RawDB  *sql.DB
+	dB     *gorm.DB
+	rawDB  *sql.DB
 )
 
 func syncDatabase() {
-	DB.AutoMigrate(&domain.User{})
+	dB.AutoMigrate(&domain.User{})
 }
 
 func connectToDb() {
@@ -50,26 +50,26 @@ func connectToDb() {
 		log.Fatalf("Failed to open DB: %v", err)
 	}
 
-	DB = db
-	RawDB, _ = db.DB()
+	dB = db
+	rawDB, _ = db.DB()
 
 	log.Printf("Connected to DB!")
 }
 
 func main() {
 	connectToDb()
-	defer RawDB.Close()
+	defer rawDB.Close()
 	syncDatabase()
 
 	server = gin.Default()
 
-	repo := repo.NewRepository(DB)
+	repo := repo.NewRepository(dB)
 	service := service.NewService(repo)
 	handler := api.NewHandler(service)
 	route := *api.NewRoute(handler)
 
 	server.GET("/ping", func(c *gin.Context) {
-		err := RawDB.Ping()
+		err := rawDB.Ping()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
