@@ -32,12 +32,6 @@ func (m *MockUserRepo) Create(user *domain.User) error {
 // NOTE: As Gin covers validation, I won’t check for
 // nil values, empty values, min/max cardinality, or email type.
 
-var defaultAddress = domain.Address{
-	Street:  "street 99",
-	City:    "city",
-	Country: "country",
-}
-
 var defaultUserDTO = &domain.UserDTO{
 	Username: "user",
 	Password: "pass",
@@ -45,7 +39,7 @@ var defaultUserDTO = &domain.UserDTO{
 	Name:     "name",
 	Surname:  "surname",
 	Role:     "guest",
-	Address:  defaultAddress,
+	Address:  "Address 123",
 }
 
 var defaultUser = &domain.User{
@@ -55,7 +49,7 @@ var defaultUser = &domain.User{
 	Name:     "name",
 	Surname:  "surname",
 	Role:     "guest",
-	Address:  defaultAddress,
+	Address:  "Address 123",
 }
 
 func TestSuccess(t *testing.T) {

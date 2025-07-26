@@ -30,7 +30,7 @@ var (
 )
 
 func syncDatabase() {
-	DB.AutoMigrate(&domain.User{}, &domain.Address{})
+	DB.AutoMigrate(&domain.User{})
 }
 
 func connectToDb() {
