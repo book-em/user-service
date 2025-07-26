@@ -17,7 +17,7 @@ func NewHandler(us service.Service) Handler {
 	return Handler{us}
 }
 
-func (h *Handler) RegisterUser(ctx *gin.Context) {
+func (h *Handler) registerUser(ctx *gin.Context) {
 
 	var dto domain.UserDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {

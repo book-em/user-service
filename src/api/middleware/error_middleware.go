@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func MapErrorToStatus(err error) int {
+func mapErrorToStatus(err error) int {
 	switch {
 	case errors.Is(err, domain.ErrInvalidValue):
 		return http.StatusBadRequest
@@ -38,7 +38,7 @@ func ErrorHandlingMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		status := MapErrorToStatus(err)
+		status := mapErrorToStatus(err)
 		c.JSON(status, gin.H{"error": err.Error()})
 	}
 }
