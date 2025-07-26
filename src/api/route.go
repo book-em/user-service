@@ -16,5 +16,5 @@ func NewRoute(handler Handler) *Route {
 
 func (r *Route) Route(rg *gin.RouterGroup) {
 	rg.Use(middleware.ErrorHandlingMiddleware())
-	rg.POST("/register", r.handler.RegisterUser)
+	rg.POST("/register", r.handler.registerUser)
 }
