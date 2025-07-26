@@ -29,8 +29,8 @@ func (m *MockUserRepo) Create(user *domain.User) error {
 	return args.Error(0)
 }
 
-// NOTE: As gin cover validation, I wont check for
-// nil values, empty values, min, max cardinality or email type.
+// NOTE: As Gin covers validation, I won’t check for
+// nil values, empty values, min/max cardinality, or email type.
 
 var defaultAddress = domain.Address{
 	Street:  "street 99",
