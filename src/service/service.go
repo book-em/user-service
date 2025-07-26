@@ -8,19 +8,19 @@ import (
 	"strings"
 )
 
-type UserService interface {
+type Service interface {
 	Register(input *domain.UserDTO) (*domain.User, error)
 }
 
-type userService struct {
-	repo repo.UserRepository
+type service struct {
+	repo repo.Repository
 }
 
-func NewUserService(r repo.UserRepository) UserService {
-	return &userService{r}
+func NewService(r repo.Repository) Service {
+	return &service{r}
 }
 
-func (s *userService) Register(dto *domain.UserDTO) (*domain.User, error) {
+func (s *service) Register(dto *domain.UserDTO) (*domain.User, error) {
 
 	hashed, err := util.HashPassword(dto.Password)
 	if err != nil {

@@ -63,9 +63,9 @@ func main() {
 
 	server = gin.Default()
 
-	userRepo := repo.NewUserRepository(DB)
-	userService := service.NewUserService(userRepo)
-	handler := api.NewHandler(userService)
+	repo := repo.NewRepository(DB)
+	service := service.NewService(repo)
+	handler := api.NewHandler(service)
 	route := *api.NewRoute(handler)
 
 	server.GET("/ping", func(c *gin.Context) {

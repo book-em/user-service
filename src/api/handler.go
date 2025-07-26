@@ -10,10 +10,10 @@ import (
 )
 
 type Handler struct {
-	userService service.UserService
+	service service.Service
 }
 
-func NewHandler(us service.UserService) Handler {
+func NewHandler(us service.Service) Handler {
 	return Handler{us}
 }
 
@@ -25,7 +25,7 @@ func (h *Handler) RegisterUser(ctx *gin.Context) {
 		return
 	}
 
-	user, err := h.userService.Register(&dto)
+	user, err := h.service.Register(&dto)
 	if err != nil {
 		ctx.Error(err)
 		return

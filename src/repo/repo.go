@@ -6,24 +6,24 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRepository interface {
+type Repository interface {
 	Create(user *domain.User) error
 	FindByUsernameOrEmail(username, email string) *domain.User
 }
 
-type userRepository struct {
+type repository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) UserRepository {
-	return &userRepository{db}
+func NewRepository(db *gorm.DB) Repository {
+	return &repository{db}
 }
 
-func (r *userRepository) Create(user *domain.User) error {
+func (r *repository) Create(user *domain.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *userRepository) FindByUsernameOrEmail(username, email string) *domain.User {
+func (r *repository) FindByUsernameOrEmail(username, email string) *domain.User {
 	var user domain.User
 	err := r.db.Where("username = ? OR email = ?", username, email).First(&user).Error
 	if err != nil {
