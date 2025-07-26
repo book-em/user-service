@@ -4,7 +4,7 @@ import (
 	"bookem-user-service/domain"
 	repo "bookem-user-service/repo"
 	util "bookem-user-service/util"
-	"regexp"
+	"fmt"
 	"strings"
 )
 
@@ -22,10 +22,6 @@ func NewUserService(r repo.UserRepository) UserService {
 
 func (s *userService) Register(dto *domain.UserDTO) (*domain.User, error) {
 
-	if !isValidEmail(dto.Email) {
-		return nil, domain.ErrInvalidEmail
-	}
-
 	hashed, err := util.HashPassword(dto.Password)
 	if err != nil {
 		return nil, domain.ErrHashingPassword
@@ -37,24 +33,24 @@ func (s *userService) Register(dto *domain.UserDTO) (*domain.User, error) {
 		Email:    strings.ToLower(dto.Email),
 		Name:     dto.Name,
 		Surname:  dto.Surname,
-		Role:     domain.UserRole(strings.ToLower(dto.Role)),
+		Role:     domain.UserRole(dto.Role),
 		Address:  dto.Address,
 	}
 
 	existing := s.repo.FindByUsernameOrEmail(dto.Username, dto.Email)
 	if existing != nil {
 		if existing.Username == dto.Username {
-			return nil, domain.ErrUserExists
+			return nil, domain.ErrUsernameExists
 		}
 		if existing.Email == dto.Email {
 			return nil, domain.ErrEmailExists
 		}
 	}
 
-	return user, nil
-}
+	err = s.repo.Create(user)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", domain.ErrDBInternal, err)
+	}
 
-func isValidEmail(email string) bool {
-	re := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
-	return re.MatchString(email)
+	return user, nil
 }

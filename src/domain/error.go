@@ -3,10 +3,11 @@ package domain
 import "errors"
 
 var (
-	ErrInvalidEmail    = errors.New("Invalid email format")
-	ErrUserExists      = errors.New("Username already exists")
+	ErrUsernameExists  = errors.New("Username already exists")
 	ErrEmailExists     = errors.New("Email already exists")
 	ErrHashingPassword = errors.New("Error hashing password")
+	ErrDBInternal      = errors.New("Database internal error")
+	ErrInvalidValue    = errors.New("Invalid value")
 )
 
 type AppError struct {
