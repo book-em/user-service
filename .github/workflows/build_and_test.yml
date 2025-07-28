@@ -31,6 +31,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      - name: Write private key from secret
+        run: echo "${{ secrets.PRIVATE_KEY }}" > keys/private_key.key
+
+      - name: Write public key from secret
+        run: echo "${{ secrets.PUBLIC_KEY }}" > keys/public_key.pem
+
+      - name: Set key permissions
+        run: chmod 400 keys/private_key.key
+
       - name: Run test script
         run: |
           chmod +x ./run-tests.sh
