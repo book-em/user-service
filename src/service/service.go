@@ -5,11 +5,13 @@ import (
 	repo "bookem-user-service/repo"
 	util "bookem-user-service/util"
 	"fmt"
+	"log"
 	"strings"
 )
 
 type Service interface {
 	Register(input *domain.UserDTO) (*domain.User, error)
+	Login(dto domain.LoginDTO) (string, error)
 }
 
 type service struct {
@@ -21,7 +23,6 @@ func NewService(r repo.Repository) Service {
 }
 
 func (s *service) Register(dto *domain.UserDTO) (*domain.User, error) {
-
 	hashed, err := util.HashPassword(dto.Password)
 	if err != nil {
 		return nil, domain.ErrHashingPassword
@@ -53,4 +54,31 @@ func (s *service) Register(dto *domain.UserDTO) (*domain.User, error) {
 	}
 
 	return user, nil
+}
+
+// Login signs the user in.
+// It can accept both an email or a username.
+// On success, it returns a JWT string.
+// On error, it returns an empty string.
+func (s *service) Login(dto domain.LoginDTO) (string, error) {
+	user := s.repo.FindByUsernameOrEmail(dto.UsernameOrEmail, dto.UsernameOrEmail)
+
+	if user == nil {
+		log.Printf("User %s not found", dto.UsernameOrEmail)
+		return "", domain.ErrLoginFailed
+	}
+
+	err := util.VerifyPassword(user.Password, dto.Password)
+	if err != nil {
+		log.Print(err)
+		return "", domain.ErrLoginFailed
+	}
+
+	jwt, err := util.CreateJWT(int(user.ID), user.Username, user.Role)
+	if err != nil {
+		log.Print(err)
+		return "", domain.ErrLoginFailed
+	}
+
+	return jwt, nil
 }
