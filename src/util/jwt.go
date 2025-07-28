@@ -12,9 +12,12 @@ import (
 var JWT_PRIVATE_KEY_PATH = os.Getenv("JWT_PRIVATE_KEY_PATH")
 var JWT_PUBLIC_KEY_PATH = os.Getenv("JWT_PUBLIC_KEY_PATH")
 
+var CreateJWT = createJWT
+var VerifyJWT = verifyJWT
+
 // CreateJWT issues a JSON Web Token with the provided fields.
 // The JWT is signed with a private key.
-func CreateJWT(userID int, username string, role domain.UserRole) (string, error) {
+func createJWT(userID int, username string, role domain.UserRole) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":      userID,
 		"iat":      time.Now().Unix(),
@@ -44,7 +47,7 @@ func CreateJWT(userID int, username string, role domain.UserRole) (string, error
 }
 
 // VerifyJWT checks if the given JWT was provided by this server using a public key.
-func VerifyJWT(tokenString string) error {
+func verifyJWT(tokenString string) error {
 	publicKeyData, err := os.ReadFile(JWT_PUBLIC_KEY_PATH)
 	if err != nil {
 		return fmt.Errorf("could not open public key %s: %w", JWT_PUBLIC_KEY_PATH, err)
