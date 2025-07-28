@@ -9,3 +9,8 @@ type UserDTO struct {
 	Role     string `json:"role"     binding:"required,oneof=guest host admin"`
 	Address  string `json:"address"  binding:"required,max=150"`
 }
+
+type LoginDTO struct {
+	UsernameOrEmail string `json:"usernameOrEmail" binding:"required"`
+	Password        string `json:"password" binding:"required"`
+}

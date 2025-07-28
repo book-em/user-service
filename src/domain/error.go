@@ -7,7 +7,8 @@ var (
 	ErrEmailExists     = errors.New("Email already exists")
 	ErrHashingPassword = errors.New("Error hashing password")
 	ErrDBInternal      = errors.New("Database internal error")
-	ErrInvalidValue    = errors.New("Invalid value")
+	ErrInvalidValue    = errors.New("Invalid input")
+	ErrLoginFailed     = errors.New("Invalid user or password")
 )
 
 type AppError struct {
