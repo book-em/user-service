@@ -5,7 +5,7 @@ services:
     restart: always
     build: ./src
     ports:
-      - "8080:8080"
+      - "8500:8080"
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -33,14 +33,14 @@ services:
         source: pgdata
         target: /var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "8501:5432"
 
   adminer:   
     image: adminer:4.8.0-standalone
     restart: always
     container_name: bookem-user-service-adminer
     ports:
-      - "8002:8080"
+      - "8502:8080"
 
 volumes:
   pgdata:
