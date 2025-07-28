@@ -12,8 +12,13 @@ services:
       DB_NAME: bookem_userdb_db
       DB_USER: bookem_userdb_user
       DB_PASSWORD: password123
+      JWT_PRIVATE_KEY_PATH: /app/keys/private_key.key
+      JWT_PUBLIC_KEY_PATH: /app/keys/public_key.pem
     depends_on:
       - db
+    volumes:
+      - ./keys/private_key.key:/app/keys/private_key.key:ro
+      - ./keys/public_key.pem:/app/keys/public_key.pem:ro
 
   db:
     image: postgres:alpine
