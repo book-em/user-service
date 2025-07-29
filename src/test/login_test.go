@@ -98,7 +98,7 @@ func TestLogin_WrongPassword(t *testing.T) {
 	mockRepo.On(
 		"FindByUsernameOrEmail",
 		dto.UsernameOrEmail, dto.UsernameOrEmail,
-	).Return(user)
+	).Return(&user)
 
 	jwt, err := svc.Login(dto)
 
