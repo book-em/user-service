@@ -11,7 +11,7 @@ import (
 
 func mapErrorToStatus(err error) int {
 	switch {
-	case errors.Is(err, domain.ErrInvalidValue):
+	case errors.Is(err, domain.ErrInvalidInput):
 		return http.StatusBadRequest
 	case errors.Is(err, domain.ErrUsernameExists), errors.Is(err, domain.ErrEmailExists):
 		return http.StatusConflict
