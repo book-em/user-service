@@ -20,7 +20,7 @@ func NewHandler(us service.Service) Handler {
 func (h *Handler) registerUser(ctx *gin.Context) {
 	var dto domain.UserDTO
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
-		ctx.Error(fmt.Errorf("%w: %v", domain.ErrInvalidValue, err))
+		ctx.Error(fmt.Errorf("%w: %v", domain.ErrInvalidInput, err))
 		return
 	}
 
@@ -37,7 +37,7 @@ func (h *Handler) login(ctx *gin.Context) {
 	var dto domain.LoginDTO
 
 	if err := ctx.ShouldBindJSON(&dto); err != nil {
-		ctx.Error(fmt.Errorf("%w: %v", domain.ErrInvalidValue, err))
+		ctx.Error(fmt.Errorf("%w: %v", domain.ErrInvalidInput, err))
 		return
 	}
 
