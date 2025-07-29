@@ -21,7 +21,6 @@ func createJWT(userID int, username string, role domain.UserRole) (string, error
 	claims := jwt.MapClaims{
 		"sub":      userID,
 		"iat":      time.Now().Unix(),
-		"user_id":  userID,
 		"username": username,
 		"role":     role,
 	}
