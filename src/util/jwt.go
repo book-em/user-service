@@ -55,7 +55,7 @@ func verifyJWT(tokenString string) error {
 
 	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKeyData)
 	if err != nil {
-		return fmt.Errorf("could parse public key: %w", err)
+		return fmt.Errorf("could not parse public key: %w", err)
 	}
 
 	_, err = jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
