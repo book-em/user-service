@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
 	_ "github.com/lib/pq"
@@ -18,10 +17,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
-
-func Add(a int, b int) int {
-	return a + b
-}
 
 var (
 	server *gin.Engine
@@ -67,16 +62,6 @@ func main() {
 	service := service.NewService(repo)
 	handler := api.NewHandler(service)
 	route := *api.NewRoute(handler)
-
-	server.GET("/ping", func(c *gin.Context) {
-		err := rawDB.Ping()
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{"message": "Pong"})
-	})
 
 	rg := server.Group("/api")
 	route.Route(rg)
