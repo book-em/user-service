@@ -1,0 +1,43 @@
+services:
+  user-service:
+    build:
+      context: ./src
+      dockerfile: test.Dockerfile
+    image: user-service-test
+    ports:
+      - "0:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: bookem_userdb_test
+      DB_USER: bookem_userdb_user
+      DB_PASSWORD: testpass
+      JWT_PRIVATE_KEY_PATH: /app/keys/private_key.key
+      JWT_PUBLIC_KEY_PATH: /app/keys/public_key.pem
+      ENABLE_TEST_MODE: "true"
+    depends_on:
+      - db
+    volumes:
+      - ./keys/private_key.key:/app/keys/private_key.key:ro
+      - ./keys/public_key.pem:/app/keys/public_key.pem:ro
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: bookem_userdb_test
+      POSTGRES_USER: bookem_userdb_user
+      POSTGRES_PASSWORD: testpass
+    ports:
+      - "0:5432"
+    volumes:
+      - type: volume
+        source: pgdata
+        target: /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
