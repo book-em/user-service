@@ -4,7 +4,10 @@ services:
       context: ./src
       dockerfile: test.Dockerfile
     depends_on:
-      - user-service
+      db:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
     volumes:
       - go-mod-cache:/go/pkg/mod
 
@@ -25,10 +28,16 @@ services:
       JWT_PUBLIC_KEY_PATH: /app/keys/public_key.pem
       ENABLE_TEST_MODE: "true"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ./keys/private_key.key:/app/keys/private_key.key:ro
       - ./keys/public_key.pem:/app/keys/public_key.pem:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider --tries=1 --no-verbose http://user-service:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db:
     image: postgres:15-alpine
@@ -43,8 +52,8 @@ services:
         target: /var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 5s
-      timeout: 3s
+      interval: 10s
+      timeout: 5s
       retries: 5
 
 volumes:
