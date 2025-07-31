@@ -20,6 +20,14 @@ Run tests locally:
 ./run-tests.sh
 ```
 
+Run integration tests:
+
+```
+docker compose -f compose.integration.yml up --build --abort-on-container-exit --exit-code-from test-runner
+docker compose -f compose.integration.yml down
+```
+
+
 # Contributing guidelines
 
 1) Follow [Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow)

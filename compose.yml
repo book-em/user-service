@@ -1,6 +1,5 @@
 services:
   user-service:
-    container_name: bookem-user-service
     image: magley/bookem-user-service
     restart: always
     build: ./src
@@ -15,15 +14,20 @@ services:
       JWT_PRIVATE_KEY_PATH: /app/keys/private_key.key
       JWT_PUBLIC_KEY_PATH: /app/keys/public_key.pem
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ./keys/private_key.key:/app/keys/private_key.key:ro
       - ./keys/public_key.pem:/app/keys/public_key.pem:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider --tries=1 --no-verbose http://user-service:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db:
     image: postgres:alpine
     restart: always
-    container_name: bookem-user-service-db
     environment:
       POSTGRES_DB: bookem_userdb_db
       POSTGRES_USER: bookem_userdb_user
@@ -34,11 +38,15 @@ services:
         target: /var/lib/postgresql/data
     ports:
       - "8501:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   adminer:   
     image: adminer:4.8.0-standalone
     restart: always
-    container_name: bookem-user-service-adminer
     ports:
       - "8502:8080"
 
