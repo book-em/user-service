@@ -1,5 +1,3 @@
-//go:build integration
-
 package test
 
 import (
@@ -8,8 +6,8 @@ import (
 	assert "github.com/stretchr/testify/assert"
 )
 
-func TestStup(t *testing.T) {
+func TestIntegration_Setup(t *testing.T) {
 	a := 2
 	b := 4
-	assert.Equal(t, a+b, 4)
+	assert.Equal(t, a+b, 6)
 }
