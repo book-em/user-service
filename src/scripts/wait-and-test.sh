@@ -6,5 +6,10 @@ until pg_isready -h db -U bookem_userdb_user -d bookem_userdb_test; do
   sleep 2
 done
 
-echo "Ready! Running tests..."
+echo "Ready!"
+
+echo "Clearing test cache..."
+go clean -testcache
+
+echo "Running tests..."
 go test -v ./test/integration/...
