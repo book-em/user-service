@@ -1,8 +1,17 @@
 services:
-  user-service:
+  test-runner:
     build:
       context: ./src
       dockerfile: test.Dockerfile
+    depends_on:
+      - user-service
+    volumes:
+      - go-mod-cache:/go/pkg/mod
+
+  user-service:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
     image: user-service-test
     ports:
       - "0:8080"
@@ -20,7 +29,6 @@ services:
     volumes:
       - ./keys/private_key.key:/app/keys/private_key.key:ro
       - ./keys/public_key.pem:/app/keys/public_key.pem:ro
-      - go-mod-cache:/go/pkg/mod
 
   db:
     image: postgres:15-alpine
@@ -31,8 +39,7 @@ services:
     ports:
       - "0:5432"
     volumes:
-      - type: volume
-        source: pgdata
+      - type: tmpfs
         target: /var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
@@ -41,5 +48,4 @@ services:
       retries: 5
 
 volumes:
-  pgdata:
   go-mod-cache:
