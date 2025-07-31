@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	_ "github.com/lib/pq"
@@ -57,6 +58,15 @@ func main() {
 	syncDatabase()
 
 	server = gin.Default()
+
+	server.GET("/healthz", func(ctx *gin.Context) {
+		err := rawDB.Ping()
+		if err != nil {
+			ctx.JSON(http.StatusServiceUnavailable, "Database not reachable")
+			return
+		}
+		ctx.JSON(http.StatusOK, nil)
+	})
 
 	repo := repo.NewRepository(dB)
 	service := service.NewService(repo)
