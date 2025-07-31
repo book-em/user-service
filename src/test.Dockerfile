@@ -2,8 +2,6 @@ FROM golang:1.24-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache postgresql-client
-
 COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,source=go.sum,target=go.sum \
