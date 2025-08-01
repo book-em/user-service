@@ -14,3 +14,7 @@ type LoginDTO struct {
 	UsernameOrEmail string `json:"usernameOrEmail" binding:"required"`
 	Password        string `json:"password" binding:"required"`
 }
+
+type JWTDTO struct {
+	Jwt string `json:"jwt"`
+}
