@@ -8,9 +8,10 @@ on:
     paths:
       - 'src/**'
       - 'compose.yml'
+      - '*.sh'
 
 jobs:
-  test:
+  unit-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -45,9 +46,54 @@ jobs:
           chmod +x ./run-tests.sh
           ./run-tests.sh
 
+      - name: Upload test results as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: |
+            src/test-out/
+
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.24
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Write private key from secret
+        run: echo "${{ secrets.PRIVATE_KEY }}" > keys/private_key.key
+
+      - name: Write public key from secret
+        run: echo "${{ secrets.PUBLIC_KEY }}" > keys/public_key.pem
+
+      - name: Set key permissions
+        run: chmod 400 keys/private_key.key
+
+      - name: Run tests
+        run: docker compose -f compose.integration.yml up --build --abort-on-container-exit --exit-code-from test-runner
+      
+      - name: Cleanup
+        run: docker compose -f compose.integration.yml down
+
   build:
     runs-on: ubuntu-latest
-    needs: test
+    needs:
+      - unit-test
+      - integration-test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
