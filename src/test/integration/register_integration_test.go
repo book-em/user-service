@@ -64,16 +64,16 @@ func TestIntegration_RegisterUser(t *testing.T) {
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
 }
 
-// func TestIntegration_RegisterUserDuplicate(t *testing.T) {
-// 	resp, err := registerUser("user1", "1234", ROLE_GUEST)
-// 	require.Nil(t, err)
-// 	require.Equal(t, resp.StatusCode, http.StatusCreated)
+func TestIntegration_RegisterUserDuplicate(t *testing.T) {
+	resp, err := registerUser("user_02", "1234", ROLE_GUEST)
+	require.Nil(t, err)
+	require.Equal(t, http.StatusCreated, resp.StatusCode)
 
-// 	resp, err = registerUser("user1", "1234", ROLE_GUEST)
-// 	require.NotNil(t, err)
-// 	require.Equal(t, resp.StatusCode, http.StatusConflict)
+	resp, err = registerUser("user_02", "1234", ROLE_GUEST)
+	require.Nil(t, err)
+	require.Equal(t, http.StatusConflict, resp.StatusCode)
 
-// 	resp, err = registerUser("user1@gmail.com", "1234", ROLE_GUEST)
-// 	require.NotNil(t, err)
-// 	require.Equal(t, resp.StatusCode, http.StatusConflict)
-// }
+	resp, err = registerUser("user_02@gmail.com", "1234", ROLE_GUEST)
+	require.Nil(t, err)
+	require.Equal(t, http.StatusConflict, resp.StatusCode)
+}
