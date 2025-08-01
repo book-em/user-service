@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# This is before pipefail in case the dir already exists.
+cd src
 mkdir test-out
 
 set -euo pipefail
-cd src
 
 echo "Running unit tests..."
 
