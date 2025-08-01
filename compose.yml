@@ -1,6 +1,6 @@
 services:
   user-service:
-    image: magley/bookem-user-service
+    image: magley/bookem-user-service:${VERSION:-localDevDefault}
     restart: always
     build: ./src
     ports:
