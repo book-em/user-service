@@ -47,5 +47,5 @@ func (h *Handler) login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"jwt": jwt})
+	ctx.JSON(http.StatusOK, domain.JWTDTO{Jwt: jwt})
 }
