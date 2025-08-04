@@ -39,3 +39,11 @@ jobs:
 
       - name: Push Docker image
         run: docker compose push
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.USER_SERVICE_NAME }}:${{ env.VERSION }} ./src
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.USER_SERVICE_NAME }}:${{ env.VERSION }}
