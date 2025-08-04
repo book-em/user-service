@@ -35,12 +35,6 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker compose build
-
-      - name: Push Docker image
-        run: docker compose push
-
-      - name: Build Docker image
         run: |
           docker build -t ${{ secrets.USER_SERVICE_NAME }}:${{ env.VERSION }} ./src
 
