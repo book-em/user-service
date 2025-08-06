@@ -115,11 +115,12 @@ func (s *service) Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User,
 		}
 
 		existing := s.repo.FindByUsernameOrEmail(usernameSafe, emailSafe)
+
 		if existing != nil && existing.ID != dto.Id {
-			if existing.Username == *dto.Username {
+			if dto.Username != nil {
 				return nil, domain.ErrUsernameExists
 			}
-			if existing.Email == *dto.Email {
+			if dto.Email != nil {
 				return nil, domain.ErrEmailExists
 			}
 		}
