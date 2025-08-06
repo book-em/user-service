@@ -12,6 +12,7 @@ import (
 type Service interface {
 	Register(input *domain.UserDTO) (*domain.User, error)
 	Login(dto domain.LoginDTO) (string, error)
+	Update(callerID int, dto domain.UserUpdateDTO) (*domain.User, error)
 }
 
 type service struct {
@@ -81,4 +82,42 @@ func (s *service) Login(dto domain.LoginDTO) (string, error) {
 	}
 
 	return jwt, nil
+}
+
+// Update updates the user (specified by his ID in the dto) with the new values
+// in the DTO. Fields with null values are skipped.
+func (s *service) Update(callerID int, dto domain.UserUpdateDTO) (*domain.User, error) {
+	log.Printf("User %d wants to update user %d", callerID, dto.Id)
+
+	if callerID != dto.Id {
+		return nil, domain.ErrUnauthorized
+	}
+
+	user, err := s.repo.FindById(dto.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	if dto.Username != nil {
+		user.Username = *dto.Username
+	}
+	if dto.Email != nil {
+		user.Email = *dto.Email
+	}
+	if dto.Name != nil {
+		user.Name = *dto.Name
+	}
+	if dto.Surname != nil {
+		user.Surname = *dto.Surname
+	}
+	if dto.Address != nil {
+		user.Address = *dto.Address
+	}
+
+	err = s.repo.Update(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

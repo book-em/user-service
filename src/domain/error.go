@@ -9,6 +9,7 @@ var (
 	ErrDBInternal      = errors.New("Database internal error")
 	ErrInvalidInput    = errors.New("Invalid input")
 	ErrLoginFailed     = errors.New("Invalid user or password")
+	ErrUnauthorized    = errors.New("Unauthorized")
 )
 
 type AppError struct {
