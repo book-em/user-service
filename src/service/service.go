@@ -12,7 +12,7 @@ import (
 type Service interface {
 	Register(input *domain.UserDTO) (*domain.User, error)
 	Login(dto domain.LoginDTO) (string, error)
-	Update(callerID int, dto domain.UserUpdateDTO) (*domain.User, error)
+	Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User, error)
 }
 
 type service struct {
@@ -86,17 +86,46 @@ func (s *service) Login(dto domain.LoginDTO) (string, error) {
 
 // Update updates the user (specified by his ID in the dto) with the new values
 // in the DTO. Fields with null values are skipped.
-func (s *service) Update(callerID int, dto domain.UserUpdateDTO) (*domain.User, error) {
+func (s *service) Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User, error) {
 	log.Printf("User %d wants to update user %d", callerID, dto.Id)
+
+	// Users can only update themselves.
 
 	if callerID != dto.Id {
 		return nil, domain.ErrUnauthorized
 	}
 
+	// Search for the user.
+
 	user, err := s.repo.FindById(dto.Id)
 	if err != nil {
 		return nil, err
 	}
+
+	// Check if the username or email is already taken by someone else.
+
+	if dto.Username != nil || dto.Email != nil {
+		usernameSafe := ""
+		if dto.Username != nil {
+			usernameSafe = *dto.Username
+		}
+		emailSafe := ""
+		if dto.Email != nil {
+			emailSafe = *dto.Email
+		}
+
+		existing := s.repo.FindByUsernameOrEmail(usernameSafe, emailSafe)
+		if existing != nil && existing.ID != dto.Id {
+			if existing.Username == *dto.Username {
+				return nil, domain.ErrUsernameExists
+			}
+			if existing.Email == *dto.Email {
+				return nil, domain.ErrEmailExists
+			}
+		}
+	}
+
+	// Update non-null fields.
 
 	if dto.Username != nil {
 		user.Username = *dto.Username
