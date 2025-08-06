@@ -26,6 +26,13 @@ type LoginDTO struct {
 	Password        string `json:"password" binding:"required"`
 }
 
+type PasswordUpdateDTO struct {
+	Id                 uint   `json:"id"`
+	OldPassword        string `json:"oldPassword"`
+	NewPassword        string `json:"newPassword"`
+	NewPasswordConfirm string `json:"newPasswordConfirm"`
+}
+
 type JWTDTO struct {
 	Jwt string `json:"jwt"`
 }
