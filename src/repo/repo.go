@@ -9,7 +9,7 @@ import (
 type Repository interface {
 	Create(user *domain.User) error
 	FindByUsernameOrEmail(username, email string) *domain.User // TODO: Make this return (user, error)
-	FindById(id int) (*domain.User, error)
+	FindById(id uint) (*domain.User, error)
 	Update(user *domain.User) error
 }
 
@@ -34,7 +34,7 @@ func (r *repository) FindByUsernameOrEmail(username, email string) *domain.User 
 	return &user
 }
 
-func (r *repository) FindById(id int) (*domain.User, error) {
+func (r *repository) FindById(id uint) (*domain.User, error) {
 	var user domain.User
 	err := r.db.Where("id = ?", id).First(&user).Error
 	if err != nil {
