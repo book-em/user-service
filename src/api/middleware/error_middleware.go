@@ -17,6 +17,8 @@ func mapErrorToStatus(err error) int {
 		return http.StatusConflict
 	case errors.Is(err, domain.ErrLoginFailed):
 		return http.StatusBadRequest
+	case errors.Is(err, domain.ErrUnauthorized):
+		return http.StatusUnauthorized
 	default:
 		return http.StatusInternalServerError
 	}
