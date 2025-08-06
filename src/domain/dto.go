@@ -6,8 +6,19 @@ type UserDTO struct {
 	Email    string `json:"email"    binding:"required,max=60,email"`
 	Name     string `json:"name"     binding:"required,max=60"`
 	Surname  string `json:"surname"  binding:"required,max=60"`
-	Role     string `json:"role"     binding:"required,oneof=guest host admin"`
 	Address  string `json:"address"  binding:"required,max=150"`
+	Role     string `json:"role"     binding:"required,oneof=guest host admin"`
+}
+
+type UserUpdateDTO struct {
+	Id       int     `json:id"`
+	Username *string `json:"username"`
+	Password *string `json:"password"`
+	Email    *string `json:"email"`
+	Name     *string `json:"name"`
+	Surname  *string `json:"surname"`
+	Address  *string `json:"address"`
+	// Role     *string `json:"role" `
 }
 
 type LoginDTO struct {
