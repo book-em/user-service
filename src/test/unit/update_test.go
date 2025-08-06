@@ -15,10 +15,11 @@ func TestUpdate_Success(t *testing.T) {
 
 	// Prepare
 
+	oldName := "user123"
 	newName := "new123"
 	oldSurname := "Jones"
 
-	userBefore := domain.User{ID: 1, Username: "user123", Surname: oldSurname}
+	userBefore := domain.User{ID: 1, Username: oldName, Surname: oldSurname}
 	dto := domain.UserUpdateDTO{Id: 1, Username: &newName, Surname: nil}
 
 	userAfter := userBefore
@@ -27,7 +28,8 @@ func TestUpdate_Success(t *testing.T) {
 
 	// Mock
 
-	mockRepo.On("FindById", 1).Return(&userBefore, nil)
+	mockRepo.On("FindById", uint(1)).Return(&userBefore, nil)
+	mockRepo.On("FindByUsernameOrEmail", newName, "").Return(nil)
 	mockRepo.On("Update", &userBefore).Return(nil)
 
 	// Verify
