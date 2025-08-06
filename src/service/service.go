@@ -13,6 +13,7 @@ type Service interface {
 	Register(input *domain.UserDTO) (*domain.User, error)
 	Login(dto domain.LoginDTO) (string, error)
 	Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User, error)
+	ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error)
 }
 
 type service struct {
@@ -143,6 +144,61 @@ func (s *service) Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User,
 	if dto.Address != nil {
 		user.Address = *dto.Address
 	}
+
+	err = s.repo.Update(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// ChangePassword changes the user's password.
+func (s *service) ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error) {
+	log.Printf("User %d wants to change password of user %d", callerID, dto.Id)
+
+	// User can only change his own password.
+
+	if callerID != dto.Id {
+		return nil, domain.ErrUnauthorized
+	}
+
+	// Search for the user.
+
+	user, err := s.repo.FindById(dto.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if confirm password is valid.
+
+	if dto.NewPasswordConfirm != dto.NewPassword {
+		return nil, domain.ErrPasswordsNotMatch
+	}
+
+	// Check if old password is correct.
+
+	err = util.VerifyPassword(user.Password, dto.OldPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if password is new.
+
+	if dto.NewPassword == dto.OldPassword {
+		return nil, domain.ErrPasswordNotChanged
+	}
+
+	// Hash new password.
+
+	passwordHashed, err := util.HashPassword(dto.NewPassword)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update.
+
+	user.Password = passwordHashed
 
 	err = s.repo.Update(user)
 	if err != nil {
