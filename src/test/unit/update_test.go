@@ -80,7 +80,6 @@ func TestUpdate_UserNotFound(t *testing.T) {
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)
-	//assert.Equal(t, domain.ErrUnauthorized, err)
 }
 
 func TestUpdate_UsernameTaken(t *testing.T) {
