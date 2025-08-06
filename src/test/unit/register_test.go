@@ -2,6 +2,7 @@ package test
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -24,7 +25,20 @@ func (m *MockRepo) FindByUsernameOrEmail(username, email string) *domain.User {
 	return nil
 }
 
+func (m *MockRepo) FindById(id int) (*domain.User, error) {
+	args := m.Called(id)
+	if user, ok := args.Get(0).(*domain.User); ok {
+		return user, nil
+	}
+	return nil, fmt.Errorf("User (%d) not found", id)
+}
+
 func (m *MockRepo) Create(user *domain.User) error {
+	args := m.Called(user)
+	return args.Error(0)
+}
+
+func (m *MockRepo) Update(user *domain.User) error {
 	args := m.Called(user)
 	return args.Error(0)
 }
