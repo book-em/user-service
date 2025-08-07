@@ -120,3 +120,24 @@ func updateUser(jwt string, id uint, new_username *string, new_surname *string) 
 	req.Header.Add("Authorization", "Bearer "+jwt)
 	return http.DefaultClient.Do(req)
 }
+
+func changePassword(jwt string, id uint, old, new, newConfirm string) (*http.Response, error) {
+	dto := domain.PasswordUpdateDTO{
+		Id:                 id,
+		OldPassword:        old,
+		NewPassword:        new,
+		NewPasswordConfirm: newConfirm,
+	}
+
+	jsonBytes, err := json.Marshal(dto)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, URL+"password", bytes.NewBuffer(jsonBytes))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+jwt)
+	return http.DefaultClient.Do(req)
+}
