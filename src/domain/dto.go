@@ -31,6 +31,18 @@ type UserUpdateDTO struct {
 	// Role     *string `json:"role" `
 }
 
+func NewUserDTO(user *User) UserDTO {
+	return UserDTO{
+		Id:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+		Name:     user.Name,
+		Surname:  user.Surname,
+		Address:  user.Address,
+		Role:     string(user.Role),
+	}
+}
+
 type LoginDTO struct {
 	UsernameOrEmail string `json:"usernameOrEmail" binding:"required"`
 	Password        string `json:"password" binding:"required"`

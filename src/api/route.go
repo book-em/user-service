@@ -20,4 +20,5 @@ func (r *Route) Route(rg *gin.RouterGroup) {
 	rg.POST("/login", r.handler.login)
 	rg.PUT("/update", r.handler.update)
 	rg.PUT("/password", r.handler.changePassword)
+	rg.GET("/:id", r.handler.findById)
 }

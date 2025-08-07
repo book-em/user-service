@@ -9,7 +9,7 @@ const (
 )
 
 type User struct {
-	ID       uint     `                gorm:"primaryKey"`
+	ID       uint     `json:"id"       gorm:"primaryKey"`
 	Username string   `json:"username" gorm:"type:varchar(30);not null;uniqueIndex"`
 	Password string   `json:"password" gorm:"type:varchar(100);not null;"`
 	Email    string   `json:"email"    gorm:"type:varchar(60);not null;uniqueIndex"`
