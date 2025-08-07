@@ -44,7 +44,7 @@ jobs:
       - name: Run test script
         run: |
           chmod +x ./run-tests.sh
-          ./run-tests.sh
+          make test_unit
 
       - name: Upload test results as artifacts
         uses: actions/upload-artifact@v4
@@ -84,7 +84,4 @@ jobs:
         run: chmod 400 keys/private_key.key
 
       - name: Run tests
-        run: docker compose -f compose.integration.yml up --build --abort-on-container-exit --exit-code-from test-runner
-      
-      - name: Cleanup
-        run: docker compose -f compose.integration.yml down
+        run: make test_integration
