@@ -40,7 +40,7 @@ func (s *service) Register(dto *domain.UserDTO) (*domain.User, error) {
 		Address:  dto.Address,
 	}
 
-	existing := s.repo.FindByUsernameOrEmail(dto.Username, dto.Email)
+	existing, _ := s.repo.FindByUsernameOrEmail(dto.Username, dto.Email)
 	if existing != nil {
 		if existing.Username == dto.Username {
 			return nil, domain.ErrUsernameExists
@@ -63,7 +63,7 @@ func (s *service) Register(dto *domain.UserDTO) (*domain.User, error) {
 // On success, it returns a JWT string.
 // On error, it returns an empty string.
 func (s *service) Login(dto domain.LoginDTO) (string, error) {
-	user := s.repo.FindByUsernameOrEmail(dto.UsernameOrEmail, dto.UsernameOrEmail)
+	user, _ := s.repo.FindByUsernameOrEmail(dto.UsernameOrEmail, dto.UsernameOrEmail)
 
 	if user == nil {
 		log.Printf("User %s not found", dto.UsernameOrEmail)
@@ -115,7 +115,7 @@ func (s *service) Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User,
 			emailSafe = *dto.Email
 		}
 
-		existing := s.repo.FindByUsernameOrEmail(usernameSafe, emailSafe)
+		existing, _ := s.repo.FindByUsernameOrEmail(usernameSafe, emailSafe)
 
 		if existing != nil && existing.ID != dto.Id {
 			if dto.Username != nil {
