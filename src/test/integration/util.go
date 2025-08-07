@@ -141,3 +141,8 @@ func changePassword(jwt string, id uint, old, new, newConfirm string) (*http.Res
 	req.Header.Add("Authorization", "Bearer "+jwt)
 	return http.DefaultClient.Do(req)
 }
+
+func findUserById(id uint) (*http.Response, error) {
+	resp, err := http.Get(fmt.Sprintf("%s%d", URL, id)) // No forward slash between them, it's in `URL`
+	return resp, err
+}
