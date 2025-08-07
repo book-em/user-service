@@ -30,7 +30,7 @@ func registerUser(username_or_email string, password string, role domain.UserRol
 		email = username_or_email
 	}
 
-	dto := domain.UserDTO{
+	dto := domain.UserCreateDTO{
 		Username: username,
 		Password: password,
 		Email:    email,
