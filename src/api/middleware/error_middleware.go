@@ -11,14 +11,21 @@ import (
 
 func mapErrorToStatus(err error) int {
 	switch {
-	case errors.Is(err, domain.ErrInvalidInput):
+	case errors.Is(err, domain.ErrInvalidInput),
+		errors.Is(err, domain.ErrPasswordsNotMatch),
+		errors.Is(err, domain.ErrPasswordNotChanged):
 		return http.StatusBadRequest
-	case errors.Is(err, domain.ErrUsernameExists), errors.Is(err, domain.ErrEmailExists):
+	case errors.Is(err, domain.ErrUsernameExists),
+		errors.Is(err, domain.ErrEmailExists):
 		return http.StatusConflict
 	case errors.Is(err, domain.ErrLoginFailed):
 		return http.StatusBadRequest
 	case errors.Is(err, domain.ErrUnauthorized):
 		return http.StatusUnauthorized
+	case errors.Is(err, domain.ErrUnauthenticated):
+		return http.StatusForbidden
+	case errors.Is(err, domain.ErrNotFound):
+		return http.StatusNotFound
 	default:
 		return http.StatusInternalServerError
 	}

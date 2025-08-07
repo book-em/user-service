@@ -100,7 +100,8 @@ func (s *service) Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User,
 
 	user, err := s.repo.FindById(dto.Id)
 	if err != nil {
-		return nil, err
+		log.Printf("User %d not fonud", dto.Id)
+		return nil, domain.ErrNotFound
 	}
 
 	// Check if the username or email is already taken by someone else.
