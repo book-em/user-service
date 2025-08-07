@@ -18,4 +18,6 @@ func (r *Route) Route(rg *gin.RouterGroup) {
 	rg.Use(middleware.ErrorHandlingMiddleware())
 	rg.POST("/register", r.handler.registerUser)
 	rg.POST("/login", r.handler.login)
+	rg.PUT("/update", r.handler.update)
+	rg.PUT("/password", r.handler.changePassword)
 }
