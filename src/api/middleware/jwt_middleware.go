@@ -56,9 +56,9 @@ func GetJwt(ctx *gin.Context) (*Jwt, error) {
 	}
 
 	jwt := Jwt{
-		ID:       jwtData["sub"].(uint),
+		ID:       uint(jwtData["sub"].(float64)),
 		Username: jwtData["username"].(string),
-		Role:     jwtData["role"].(domain.UserRole),
+		Role:     domain.UserRole(jwtData["role"].(string)),
 	}
 
 	return &jwt, nil
