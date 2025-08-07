@@ -89,5 +89,5 @@ func TestIntegration_PasswordChange_OldPasswordFail(t *testing.T) {
 		t.Log(err.Error())
 	}
 	require.Nil(t, err)
-	require.NotEqual(t, http.StatusNoContent, resp.StatusCode)
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 }
