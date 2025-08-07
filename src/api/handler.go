@@ -5,7 +5,9 @@ import (
 	domain "bookem-user-service/domain"
 	service "bookem-user-service/service"
 	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,17 +33,7 @@ func (h *Handler) registerUser(ctx *gin.Context) {
 		return
 	}
 
-	result := domain.UserDTO{
-		Id:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		Name:     user.Name,
-		Surname:  user.Surname,
-		Address:  user.Address,
-		Role:     string(user.Role),
-	}
-
-	ctx.JSON(http.StatusCreated, result)
+	ctx.JSON(http.StatusCreated, domain.NewUserDTO(user))
 }
 
 func (h *Handler) login(ctx *gin.Context) {
@@ -103,4 +95,23 @@ func (h *Handler) changePassword(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusNoContent, nil)
+}
+
+func (h *Handler) findById(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Printf("Could not parse ID: %s", err.Error())
+		ctx.Error(err)
+		return
+	}
+
+	log.Printf("Find user by id %d", id)
+
+	user, err := h.service.FindById(uint(id))
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, domain.NewUserDTO(user))
 }
