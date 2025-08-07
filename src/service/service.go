@@ -10,7 +10,7 @@ import (
 )
 
 type Service interface {
-	Register(input *domain.UserDTO) (*domain.User, error)
+	Register(input *domain.UserCreateDTO) (*domain.User, error)
 	Login(dto domain.LoginDTO) (string, error)
 	Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User, error)
 	ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error)
@@ -24,7 +24,7 @@ func NewService(r repo.Repository) Service {
 	return &service{r}
 }
 
-func (s *service) Register(dto *domain.UserDTO) (*domain.User, error) {
+func (s *service) Register(dto *domain.UserCreateDTO) (*domain.User, error) {
 	hashed, err := util.HashPassword(dto.Password)
 	if err != nil {
 		return nil, domain.ErrHashingPassword

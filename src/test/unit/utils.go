@@ -33,7 +33,7 @@ func (m *MockRepo) Update(user *domain.User) error {
 	return args.Error(0)
 }
 
-var defaultUserDTO = &domain.UserDTO{
+var defaultUserDTO = &domain.UserCreateDTO{
 	Username: "user",
 	Password: "pass",
 	Email:    "email@mail.com",
