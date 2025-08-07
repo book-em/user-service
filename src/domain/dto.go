@@ -4,20 +4,20 @@ type UserCreateDTO struct {
 	Username string `json:"username" binding:"required,max=30"`
 	Password string `json:"password" binding:"required,min=4,max=30"`
 	Email    string `json:"email"    binding:"required,max=60,email"`
-	Name     string `json:"name"     binding:"required,max=60"`
-	Surname  string `json:"surname"  binding:"required,max=60"`
-	Address  string `json:"address"  binding:"required,max=150"`
+	Name     string `json:"name"     binding:"max=60"`
+	Surname  string `json:"surname"  binding:"max=60"`
+	Address  string `json:"address"  binding:"max=150"`
 	Role     string `json:"role"     binding:"required,oneof=guest host admin"`
 }
 
 type UserDTO struct {
 	Id       uint   `json:"id"`
-	Username string `json:"username" binding:"required,max=30"`
-	Email    string `json:"email"    binding:"required,max=60,email"`
-	Name     string `json:"name"     binding:"required,max=60"`
-	Surname  string `json:"surname"  binding:"required,max=60"`
-	Address  string `json:"address"  binding:"required,max=150"`
-	Role     string `json:"role"     binding:"required,oneof=guest host admin"`
+	Username string `json:"username"`
+	Email    string `json:"email"   `
+	Name     string `json:"name"    `
+	Surname  string `json:"surname" `
+	Address  string `json:"address" `
+	Role     string `json:"role"    `
 }
 
 type UserUpdateDTO struct {
