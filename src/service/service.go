@@ -14,6 +14,7 @@ type Service interface {
 	Login(dto domain.LoginDTO) (string, error)
 	Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User, error)
 	ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error)
+	FindById(id uint) (*domain.User, error)
 }
 
 type service struct {
@@ -98,7 +99,7 @@ func (s *service) Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User,
 
 	// Search for the user.
 
-	user, err := s.repo.FindById(dto.Id)
+	user, err := s.FindById(dto.Id)
 	if err != nil {
 		log.Printf("User %d not fonud", dto.Id)
 		return nil, domain.ErrNotFound
@@ -166,7 +167,7 @@ func (s *service) ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*
 
 	// Search for the user.
 
-	user, err := s.repo.FindById(dto.Id)
+	user, err := s.FindById(dto.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -206,5 +207,13 @@ func (s *service) ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*
 		return nil, err
 	}
 
+	return user, nil
+}
+
+func (s *service) FindById(id uint) (*domain.User, error) {
+	user, err := s.repo.FindById(id)
+	if err != nil {
+		return nil, domain.ErrNotFound
+	}
 	return user, nil
 }
