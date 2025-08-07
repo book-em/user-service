@@ -4,6 +4,8 @@ import (
 	"bookem-user-service/domain"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -49,6 +51,22 @@ func registerUser(username_or_email string, password string, role domain.UserRol
 	return resp, err
 }
 
+func getUserFromRegister(resp *http.Response) domain.UserDTO {
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(fmt.Sprintf("failed to read response body: %v", err))
+	}
+
+	var user domain.UserDTO
+	if err := json.Unmarshal(bodyBytes, &user); err != nil {
+		panic(fmt.Sprintf("failed to unmarshal user: %v", err))
+	}
+
+	return user
+}
+
 func loginUser(username_or_email string, password string) (*http.Response, error) {
 	dto := domain.LoginDTO{
 		UsernameOrEmail: username_or_email,
@@ -65,9 +83,40 @@ func loginUser(username_or_email string, password string) (*http.Response, error
 }
 
 func loginUser2(username_or_email string, password string) string {
+
 	resp, _ := loginUser(username_or_email, password)
-	body := resp.Body.Close().Error()
+
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(fmt.Sprintf("failed to read response body: %v", err))
+	}
+
 	var token domain.JWTDTO
-	json.Unmarshal([]byte(body), &token)
+	if err := json.Unmarshal(bodyBytes, &token); err != nil {
+		panic(fmt.Sprintf("failed to unmarshal jwt: %v", err))
+	}
+
 	return token.Jwt
+}
+
+func updateUser(jwt string, id uint, new_username *string, new_surname *string) (*http.Response, error) {
+	dto := domain.UserUpdateDTO{
+		Id:       id,
+		Username: new_username,
+		Surname:  new_surname,
+	}
+
+	jsonBytes, err := json.Marshal(dto)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, URL+"update", bytes.NewBuffer(jsonBytes))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+jwt)
+	return http.DefaultClient.Do(req)
 }
