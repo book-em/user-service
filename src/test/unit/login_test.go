@@ -43,7 +43,7 @@ func TestLogin_Success(t *testing.T) {
 	mockRepo.On(
 		"FindByUsernameOrEmail",
 		dto.UsernameOrEmail, dto.UsernameOrEmail,
-	).Return(&user)
+	).Return(&user, nil)
 
 	// Verify
 
@@ -65,7 +65,7 @@ func TestLogin_UserNotFound(t *testing.T) {
 	mockRepo.On(
 		"FindByUsernameOrEmail",
 		dto.UsernameOrEmail, dto.UsernameOrEmail,
-	).Return(nil)
+	).Return(nil, fmt.Errorf("no such user"))
 
 	jwt, err := svc.Login(dto)
 
@@ -98,7 +98,7 @@ func TestLogin_WrongPassword(t *testing.T) {
 	mockRepo.On(
 		"FindByUsernameOrEmail",
 		dto.UsernameOrEmail, dto.UsernameOrEmail,
-	).Return(&user)
+	).Return(&user, nil)
 
 	jwt, err := svc.Login(dto)
 
@@ -138,7 +138,7 @@ func TestLogin_JWTFailed(t *testing.T) {
 	mockRepo.On(
 		"FindByUsernameOrEmail",
 		dto.UsernameOrEmail, dto.UsernameOrEmail,
-	).Return(&user)
+	).Return(&user, nil)
 
 	// Verify
 

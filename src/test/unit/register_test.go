@@ -1,69 +1,15 @@
 package test
 
 import (
+	domain "bookem-user-service/domain"
+	service "bookem-user-service/service"
 	"errors"
 	"strings"
 	"testing"
 
-	domain "bookem-user-service/domain"
-	service "bookem-user-service/service"
-
 	assert "github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
-
-type MockRepo struct {
-	mock.Mock
-}
-
-func (m *MockRepo) FindByUsernameOrEmail(username, email string) *domain.User {
-	args := m.Called(username, email)
-	if user, ok := args.Get(0).(*domain.User); ok {
-		return user
-	}
-	return nil
-}
-
-func (m *MockRepo) FindById(id uint) (*domain.User, error) {
-	id_int := uint(id)
-
-	args := m.Called(id_int)
-	user, _ := args.Get(0).(*domain.User)
-	return user, args.Error(1)
-}
-
-func (m *MockRepo) Create(user *domain.User) error {
-	args := m.Called(user)
-	return args.Error(0)
-}
-
-func (m *MockRepo) Update(user *domain.User) error {
-	args := m.Called(user)
-	return args.Error(0)
-}
-
-// NOTE: As Gin covers validation, I won’t check for
-// nil values, empty values, min/max cardinality, or email type.
-
-var defaultUserDTO = &domain.UserDTO{
-	Username: "user",
-	Password: "pass",
-	Email:    "email@mail.com",
-	Name:     "name",
-	Surname:  "surname",
-	Role:     "guest",
-	Address:  "Address 123",
-}
-
-var defaultUser = &domain.User{
-	Username: "user",
-	Password: "pass",
-	Email:    "email@mail.com",
-	Name:     "name",
-	Surname:  "surname",
-	Role:     "guest",
-	Address:  "Address 123",
-}
 
 func TestSuccess(t *testing.T) {
 	mockRepo := new(MockRepo)
@@ -71,7 +17,7 @@ func TestSuccess(t *testing.T) {
 
 	dto := *defaultUserDTO
 
-	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(nil)
+	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(nil, nil)
 	mockRepo.On("Create", mock.AnythingOfType("*domain.User")).Return(nil)
 
 	user, err := svc.Register(&dto)
@@ -93,7 +39,7 @@ func TestUsernameExists(t *testing.T) {
 	existing := *defaultUser
 	existing.Username = "username"
 
-	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(&existing)
+	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(&existing, nil)
 
 	user, err := svc.Register(&dto)
 
@@ -113,7 +59,7 @@ func TestEmailExists(t *testing.T) {
 	existing.Username = "user2"
 	existing.Email = "mail@mail.com"
 
-	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(&existing)
+	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(&existing, nil)
 
 	user, err := svc.Register(&dto)
 
@@ -127,7 +73,7 @@ func TestCreateFails(t *testing.T) {
 
 	dto := *defaultUserDTO
 
-	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(nil)
+	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(nil, nil)
 	mockRepo.On("Create", mock.Anything).Return(errors.New("db down"))
 
 	user, err := svc.Register(&dto)
