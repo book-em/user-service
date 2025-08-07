@@ -13,6 +13,7 @@ var (
 	ErrPasswordsNotMatch  = errors.New("confirm password does not match")
 	ErrPasswordNotChanged = errors.New("password must be different")
 	ErrUnauthenticated    = errors.New("unauthenticated")
+	ErrNotFound           = errors.New("not found")
 )
 
 type AppError struct {

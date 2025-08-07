@@ -35,8 +35,8 @@ services:
       - ./keys/public_key.pem:/app/keys/public_key.pem:ro
     healthcheck:
       test: ["CMD-SHELL", "wget --spider --tries=1 --no-verbose http://user-service:8080/healthz || exit 1"]
-      interval: 10s
-      timeout: 5s
+      interval: 3s
+      timeout: 3s
       retries: 5
 
   db:
@@ -52,8 +52,8 @@ services:
         target: /var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 10s
-      timeout: 5s
+      interval: 3s
+      timeout: 3s
       retries: 5
 
 volumes:
