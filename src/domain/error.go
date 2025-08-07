@@ -14,6 +14,7 @@ var (
 	ErrPasswordNotChanged = errors.New("password must be different")
 	ErrUnauthenticated    = errors.New("unauthenticated")
 	ErrNotFound           = errors.New("not found")
+	ErrWrongPassword      = errors.New("incorrect password")
 )
 
 type AppError struct {
