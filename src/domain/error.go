@@ -3,15 +3,16 @@ package domain
 import "errors"
 
 var (
-	ErrUsernameExists     = errors.New("Username already exists")
-	ErrEmailExists        = errors.New("Email already exists")
-	ErrHashingPassword    = errors.New("Error hashing password")
-	ErrDBInternal         = errors.New("Database internal error")
-	ErrInvalidInput       = errors.New("Invalid input")
-	ErrLoginFailed        = errors.New("Invalid user or password")
-	ErrUnauthorized       = errors.New("Unauthorized")
-	ErrPasswordsNotMatch  = errors.New("Confirm password does not match")
-	ErrPasswordNotChanged = errors.New("Password must be different")
+	ErrUsernameExists     = errors.New("username already exists")
+	ErrEmailExists        = errors.New("email already exists")
+	ErrHashingPassword    = errors.New("error hashing password")
+	ErrDBInternal         = errors.New("database internal error")
+	ErrInvalidInput       = errors.New("invalid input")
+	ErrLoginFailed        = errors.New("invalid user or password")
+	ErrUnauthorized       = errors.New("unauthorized")
+	ErrPasswordsNotMatch  = errors.New("confirm password does not match")
+	ErrPasswordNotChanged = errors.New("password must be different")
+	ErrUnauthenticated    = errors.New("unauthenticated")
 )
 
 type AppError struct {
