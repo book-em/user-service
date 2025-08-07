@@ -7,25 +7,9 @@
 
 ## Getting started
 
-The service is locally run from [book-em/infrastructure](https://github.com/book-em/infrastructure).
-
-## Running tests
-
-Make sure to extract keys from `/keys` if running tests locally.
-
-1) Run unit tests
-
-```sh
-./run-tests.sh
-```
-
-2) Run integration tests
-
-```sh
-docker compose -f compose.integration.yml up --build --abort-on-container-exit --exit-code-from test-runner
-
-docker compose -f compose.integration.yml down
-```
+Use `make`. The app is run as part of [book-em/infrastructure](https://github.com/book-em/infrastructure),
+while the tests are either run locally (unit) or through docker compose (integration). 
+Make sure to extract keys from `/keys`.
 
 ## Contributing guidelines
 
