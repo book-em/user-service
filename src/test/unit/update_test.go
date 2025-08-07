@@ -30,7 +30,7 @@ func TestUpdate_Success(t *testing.T) {
 	// Mock
 
 	mockRepo.On("FindById", uint(1)).Return(&userBefore, nil)
-	mockRepo.On("FindByUsernameOrEmail", newName, "").Return(nil)
+	mockRepo.On("FindByUsernameOrEmail", newName, "").Return(nil, nil)
 	mockRepo.On("Update", &userBefore).Return(nil)
 
 	// Verify
@@ -99,7 +99,7 @@ func TestUpdate_UsernameTaken(t *testing.T) {
 	// Mock
 
 	mockRepo.On("FindById", uint(1)).Return(&userBefore, nil)
-	mockRepo.On("FindByUsernameOrEmail", newName, "").Return(&exitingUser)
+	mockRepo.On("FindByUsernameOrEmail", newName, "").Return(&exitingUser, nil)
 
 	// Verify
 
@@ -127,7 +127,7 @@ func TestUpdate_EmailTaken(t *testing.T) {
 	// Mock
 
 	mockRepo.On("FindById", uint(1)).Return(&userBefore, nil)
-	mockRepo.On("FindByUsernameOrEmail", "", newName).Return(&exitingUser)
+	mockRepo.On("FindByUsernameOrEmail", "", newName).Return(&exitingUser, nil)
 
 	// Verify
 
