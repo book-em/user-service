@@ -182,7 +182,7 @@ func (s *service) ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*
 
 	err = util.VerifyPassword(user.Password, dto.OldPassword)
 	if err != nil {
-		return nil, err
+		return nil, domain.ErrWrongPassword
 	}
 
 	// Check if password is new.
