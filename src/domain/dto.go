@@ -22,11 +22,11 @@ type UserDTO struct {
 
 type UserUpdateDTO struct {
 	Id       uint    `json:"id"`
-	Username *string `json:"username" binding:"max=30"`
-	Email    *string `json:"email" binding:"max=60,email"`
-	Name     *string `json:"name" binding:"max=60"`
-	Surname  *string `json:"surname" binding:"max=60"`
-	Address  *string `json:"address" binding:"max=150"`
+	Username *string `json:"username"`
+	Email    *string `json:"email" binding:"omitempty,email"`
+	Name     *string `json:"name"`
+	Surname  *string `json:"surname"`
+	Address  *string `json:"address"`
 }
 
 func NewUserDTO(user *User) UserDTO {
