@@ -4,22 +4,23 @@ import (
 	"fmt"
 	"testing"
 
+	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
-	service "bookem-user-service/service"
 
 	assert "github.com/stretchr/testify/assert"
 )
 
 func TestDelete_Success(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, mockRoomClient := createTestService()
 
 	id := uint(1)
 	callerID := uint(1)
 	user := defaultUser
 	user.ID = id
+	user.Role = domain.Guest
 	mockRepo.On("FindById", id).Return(user, nil)
 	mockRepo.On("Delete", id).Return()
+	mockRoomClient.On("GetPendingGuestReservations", user).Return([]roomclient.ReservationDTO{}, nil)
 
 	err := svc.Delete(callerID, id)
 
@@ -27,8 +28,7 @@ func TestDelete_Success(t *testing.T) {
 }
 
 func TestDelete_TriedToDeleteSomeoneElse(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	id := uint(1)
 	callerID := uint(2)
@@ -43,8 +43,7 @@ func TestDelete_TriedToDeleteSomeoneElse(t *testing.T) {
 }
 
 func TestDelete_UserNotFound(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	id := uint(1)
 	callerID := uint(1)

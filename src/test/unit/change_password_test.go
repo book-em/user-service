@@ -5,15 +5,13 @@ import (
 	"testing"
 
 	domain "bookem-user-service/domain"
-	service "bookem-user-service/service"
 	util "bookem-user-service/util"
 
 	assert "github.com/stretchr/testify/assert"
 )
 
 func TestChangePassword_Success(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 
@@ -44,8 +42,7 @@ func TestChangePassword_Success(t *testing.T) {
 }
 
 func TestChangePassword_SomeoneElse(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, _, _ := createTestService()
 
 	// Prepare
 
@@ -61,8 +58,7 @@ func TestChangePassword_SomeoneElse(t *testing.T) {
 }
 
 func TestChangePassword_UserNotFound(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 
@@ -81,8 +77,7 @@ func TestChangePassword_UserNotFound(t *testing.T) {
 }
 
 func TestChangePassword_PasswordsNotMatch(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 
@@ -107,8 +102,7 @@ func TestChangePassword_PasswordsNotMatch(t *testing.T) {
 }
 
 func TestChangePassword_BadOldPassword(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 
@@ -132,8 +126,7 @@ func TestChangePassword_BadOldPassword(t *testing.T) {
 }
 
 func TestChangePassword_PasswordIsTheSame(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 

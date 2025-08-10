@@ -5,15 +5,13 @@ import (
 	"testing"
 
 	domain "bookem-user-service/domain"
-	service "bookem-user-service/service"
 	utils "bookem-user-service/util"
 
 	assert "github.com/stretchr/testify/assert"
 )
 
 func TestLogin_Success(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 
@@ -54,8 +52,7 @@ func TestLogin_Success(t *testing.T) {
 }
 
 func TestLogin_UserNotFound(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	dto := domain.LoginDTO{
 		UsernameOrEmail: "user123",
@@ -74,8 +71,7 @@ func TestLogin_UserNotFound(t *testing.T) {
 }
 
 func TestLogin_WrongPassword(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	dto := domain.LoginDTO{
 		UsernameOrEmail: "user123",
@@ -107,8 +103,7 @@ func TestLogin_WrongPassword(t *testing.T) {
 }
 
 func TestLogin_JWTFailed(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 

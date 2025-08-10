@@ -5,14 +5,12 @@ import (
 	"testing"
 
 	domain "bookem-user-service/domain"
-	service "bookem-user-service/service"
 
 	assert "github.com/stretchr/testify/assert"
 )
 
 func TestUpdate_Success(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 
@@ -42,8 +40,7 @@ func TestUpdate_Success(t *testing.T) {
 }
 
 func TestUpdate_SomeoneElse(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, _, _ := createTestService()
 
 	// Prepare
 
@@ -61,8 +58,7 @@ func TestUpdate_SomeoneElse(t *testing.T) {
 }
 
 func TestUpdate_UserNotFound(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 
@@ -83,8 +79,7 @@ func TestUpdate_UserNotFound(t *testing.T) {
 }
 
 func TestUpdate_UsernameTaken(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 
@@ -111,8 +106,7 @@ func TestUpdate_UsernameTaken(t *testing.T) {
 }
 
 func TestUpdate_EmailTaken(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 

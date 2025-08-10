@@ -4,14 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	service "bookem-user-service/service"
-
 	assert "github.com/stretchr/testify/assert"
 )
 
 func TestFindById_Success(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	id := uint(1)
 
@@ -28,8 +25,7 @@ func TestFindById_Success(t *testing.T) {
 }
 
 func TestFindById_UserNotFound(t *testing.T) {
-	mockRepo := new(MockRepo)
-	svc := service.NewService(mockRepo)
+	svc, mockRepo, _ := createTestService()
 
 	id := uint(1)
 
