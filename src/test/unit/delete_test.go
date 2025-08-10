@@ -54,3 +54,55 @@ func TestDelete_UserNotFound(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, domain.ErrNotFound, err)
 }
+
+func TestDelete_GuestHasPendingReservations(t *testing.T) {
+	svc, mockRepo, mockRoomClient := createTestService()
+
+	id := uint(1)
+	callerID := uint(1)
+	user := defaultUser
+	user.ID = id
+	user.Role = domain.Guest
+	mockRepo.On("FindById", id).Return(user, nil)
+	mockRepo.On("Delete", id).Return()
+	reservation := roomclient.ReservationDTO{}
+	mockRoomClient.On("GetPendingGuestReservations", user).Return([]roomclient.ReservationDTO{reservation}, nil)
+
+	err := svc.Delete(callerID, id)
+
+	assert.Error(t, err)
+}
+
+func TestDelete_HostHasPendingReservations(t *testing.T) {
+	svc, mockRepo, mockRoomClient := createTestService()
+
+	id := uint(1)
+	callerID := uint(1)
+	user := defaultUser
+	user.ID = id
+	user.Role = domain.Host
+	mockRepo.On("FindById", id).Return(user, nil)
+	mockRepo.On("Delete", id).Return()
+	reservation := roomclient.ReservationDTO{}
+	mockRoomClient.On("GetActiveHostReservations", user).Return([]roomclient.ReservationDTO{reservation}, nil)
+
+	err := svc.Delete(callerID, id)
+
+	assert.Error(t, err)
+}
+
+func TestDelete_TriedDeletingAdmin(t *testing.T) {
+	svc, mockRepo, _ := createTestService()
+
+	id := uint(1)
+	callerID := uint(1)
+	user := defaultUser
+	user.ID = id
+	user.Role = domain.Admin
+	mockRepo.On("FindById", id).Return(user, nil)
+	mockRepo.On("Delete", id).Return()
+
+	err := svc.Delete(callerID, id)
+
+	assert.Error(t, err)
+}
