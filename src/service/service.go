@@ -15,6 +15,11 @@ type Service interface {
 	Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User, error)
 	ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error)
 	FindById(id uint) (*domain.User, error)
+	Delete(callerID uint, id uint) error
+
+	/// canDeleteUser returns an error if the user cannot be deleted right now.
+	/// The error specifies the reason why the operation cannot be done.
+	canDeleteUser(user *domain.User) error
 }
 
 type service struct {
@@ -216,4 +221,46 @@ func (s *service) FindById(id uint) (*domain.User, error) {
 		return nil, domain.ErrNotFound
 	}
 	return user, nil
+}
+
+func (s *service) Delete(callerID uint, id uint) error {
+	log.Printf("User %d wants to delete user %d", callerID, id)
+
+	// User can only delete himself.
+
+	if id != callerID {
+		return domain.ErrUnauthorized
+	}
+
+	// Search for the user.
+
+	user, err := s.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	// Check if user can be deleted.
+
+	err = s.canDeleteUser(user)
+	if err != nil {
+		return err
+	}
+
+	// Delete user
+
+	s.repo.Delete(user.ID)
+	log.Printf("User %d deleted", id)
+
+	return nil
+}
+
+func (s *service) canDeleteUser(user *domain.User) error {
+	switch user.Role {
+	case domain.Guest:
+		return nil
+	case domain.Host:
+		return nil
+	default:
+		return fmt.Errorf("admin accounts cannot be deleted")
+	}
 }
