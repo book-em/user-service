@@ -11,6 +11,7 @@ type Repository interface {
 	FindByUsernameOrEmail(username, email string) (*domain.User, error)
 	FindById(id uint) (*domain.User, error)
 	Update(user *domain.User) error
+	Delete(id uint)
 }
 
 type repository struct {
@@ -45,4 +46,8 @@ func (r *repository) FindById(id uint) (*domain.User, error) {
 
 func (r *repository) Update(user *domain.User) error {
 	return r.db.Save(user).Error
+}
+
+func (r *repository) Delete(id uint) {
+	r.db.Delete(&domain.User{}, id)
 }
