@@ -1,10 +1,23 @@
 package test
 
 import (
+	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
+	service "bookem-user-service/service"
 
 	mock "github.com/stretchr/testify/mock"
 )
+
+func createTestService() (service.Service, *MockRepo, *MockRoomClient) {
+	mockRepo := new(MockRepo)
+	mockRoomClient := new(MockRoomClient)
+
+	svc := service.NewService(mockRepo, mockRoomClient)
+
+	return svc, mockRepo, mockRoomClient
+}
+
+// ---------------------------------------------- Mock repo
 
 type MockRepo struct {
 	mock.Mock
@@ -36,6 +49,26 @@ func (m *MockRepo) Update(user *domain.User) error {
 func (m *MockRepo) Delete(id uint) {
 	m.Called(id)
 }
+
+// ---------------------------------------------- Mock room client
+
+type MockRoomClient struct {
+	mock.Mock
+}
+
+func (m *MockRoomClient) GetPendingGuestReservations(guest *domain.User) ([]roomclient.ReservationDTO, error) {
+	args := m.Called(guest)
+	reservations, _ := args.Get(0).([]roomclient.ReservationDTO)
+	return reservations, args.Error(1)
+}
+
+func (m *MockRoomClient) GetActiveHostReservations(host *domain.User) ([]roomclient.ReservationDTO, error) {
+	args := m.Called(host)
+	reservations, _ := args.Get(0).([]roomclient.ReservationDTO)
+	return reservations, args.Error(1)
+}
+
+// ---------------------------------------------- Mock data
 
 var defaultUserDTO = &domain.UserCreateDTO{
 	Username: "user",
