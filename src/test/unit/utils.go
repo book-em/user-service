@@ -30,6 +30,13 @@ func (m *MockRepo) FindByUsernameOrEmail(username, email string) (*domain.User, 
 	return user, err
 }
 
+func (m *MockRepo) FindByUsernameOrEmailNotId(username, email string, id uint) (*domain.User, error) {
+	args := m.Called(username, email, id)
+	user, _ := args.Get(0).(*domain.User)
+	err := args.Error(1)
+	return user, err
+}
+
 func (m *MockRepo) FindById(id uint) (*domain.User, error) {
 	args := m.Called(uint(id))
 	user, _ := args.Get(0).(*domain.User)

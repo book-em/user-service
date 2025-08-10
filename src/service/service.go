@@ -124,14 +124,18 @@ func (s *service) Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User,
 			emailSafe = *dto.Email
 		}
 
-		existing, _ := s.repo.FindByUsernameOrEmail(usernameSafe, emailSafe)
+		otherUserWithUsernameOrEmail, _ := s.repo.FindByUsernameOrEmailNotId(usernameSafe, emailSafe, dto.Id)
 
-		if existing != nil && existing.ID != dto.Id {
-			if dto.Username != nil {
+		if otherUserWithUsernameOrEmail != nil {
+			if usernameSafe == otherUserWithUsernameOrEmail.Username {
 				return nil, domain.ErrUsernameExists
-			}
-			if dto.Email != nil {
+			} else if emailSafe == otherUserWithUsernameOrEmail.Email {
 				return nil, domain.ErrEmailExists
+			} else {
+				log.Printf("DB found user matching [%s] or [%s] but the in-memory comparison failed.", usernameSafe, emailSafe)
+				log.Printf("User: %+v", otherUserWithUsernameOrEmail)
+
+				return nil, domain.ErrDBInternal
 			}
 		}
 	}

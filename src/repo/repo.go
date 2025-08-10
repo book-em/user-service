@@ -9,6 +9,7 @@ import (
 type Repository interface {
 	Create(user *domain.User) error
 	FindByUsernameOrEmail(username, email string) (*domain.User, error)
+	FindByUsernameOrEmailNotId(username, email string, id uint) (*domain.User, error)
 	FindById(id uint) (*domain.User, error)
 	Update(user *domain.User) error
 	Delete(id uint)
@@ -29,6 +30,15 @@ func (r *repository) Create(user *domain.User) error {
 func (r *repository) FindByUsernameOrEmail(username, email string) (*domain.User, error) {
 	var user domain.User
 	err := r.db.Where("username = ? OR email = ?", username, email).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *repository) FindByUsernameOrEmailNotId(username, email string, id uint) (*domain.User, error) {
+	var user domain.User
+	err := r.db.Where("id != ? AND (username = ? OR email = ?)", id, username, email).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
