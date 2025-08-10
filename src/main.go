@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 
 	api "bookem-user-service/api"
+	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
 	repo "bookem-user-service/repo"
 	service "bookem-user-service/service"
@@ -79,8 +80,10 @@ func main() {
 		ctx.JSON(http.StatusOK, nil)
 	})
 
+	roomclient := roomclient.NewRoomClient()
+
 	repo := repo.NewRepository(dB)
-	service := service.NewService(repo)
+	service := service.NewService(repo, roomclient)
 	handler := api.NewHandler(service)
 	route := *api.NewRoute(handler)
 
