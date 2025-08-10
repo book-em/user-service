@@ -146,3 +146,12 @@ func findUserById(id uint) (*http.Response, error) {
 	resp, err := http.Get(fmt.Sprintf("%s%d", URL, id)) // No forward slash between them, it's in `URL`
 	return resp, err
 }
+
+func deleteUserById(jwt string, id uint) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodDelete, URL+fmt.Sprintf("%d", id), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+jwt)
+	return http.DefaultClient.Do(req)
+}
