@@ -15,6 +15,10 @@ var (
 	ErrUnauthenticated    = errors.New("unauthenticated")
 	ErrNotFound           = errors.New("not found")
 	ErrWrongPassword      = errors.New("incorrect password")
+
+	ErrGuestHasReservations = errors.New("user has pending reservations")
+	ErrHostHasReservations  = errors.New("user has room(s) with pending reservations")
+	ErrCannotDeleteAdmin    = errors.New("admin accounts cannot be deleted")
 )
 
 type AppError struct {
