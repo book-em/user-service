@@ -33,6 +33,10 @@ func (m *MockRepo) Update(user *domain.User) error {
 	return args.Error(0)
 }
 
+func (m *MockRepo) Delete(id uint) {
+	m.Called(id)
+}
+
 var defaultUserDTO = &domain.UserCreateDTO{
 	Username: "user",
 	Password: "pass",
