@@ -13,7 +13,10 @@ func mapErrorToStatus(err error) int {
 	switch {
 	case errors.Is(err, domain.ErrInvalidInput),
 		errors.Is(err, domain.ErrPasswordsNotMatch),
-		errors.Is(err, domain.ErrPasswordNotChanged):
+		errors.Is(err, domain.ErrPasswordNotChanged),
+		errors.Is(err, domain.ErrGuestHasReservations),
+		errors.Is(err, domain.ErrHostHasReservations),
+		errors.Is(err, domain.ErrCannotDeleteAdmin):
 		return http.StatusBadRequest
 	case errors.Is(err, domain.ErrUsernameExists),
 		errors.Is(err, domain.ErrEmailExists):

@@ -264,7 +264,7 @@ func (s *service) canDeleteUser(user *domain.User) error {
 			return err
 		}
 		if len(reservations) > 0 {
-			return fmt.Errorf("user has pending reservations")
+			return domain.ErrGuestHasReservations
 		}
 		return nil
 	case domain.Host:
@@ -273,10 +273,10 @@ func (s *service) canDeleteUser(user *domain.User) error {
 			return err
 		}
 		if len(reservations) > 0 {
-			return fmt.Errorf("user has room with pending reservations")
+			return domain.ErrHostHasReservations
 		}
 		return nil
 	default:
-		return fmt.Errorf("admin accounts cannot be deleted")
+		return domain.ErrCannotDeleteAdmin
 	}
 }

@@ -71,6 +71,7 @@ func TestDelete_GuestHasPendingReservations(t *testing.T) {
 	err := svc.Delete(callerID, id)
 
 	assert.Error(t, err)
+	assert.Equal(t, domain.ErrGuestHasReservations, err)
 }
 
 func TestDelete_HostHasPendingReservations(t *testing.T) {
@@ -89,6 +90,7 @@ func TestDelete_HostHasPendingReservations(t *testing.T) {
 	err := svc.Delete(callerID, id)
 
 	assert.Error(t, err)
+	assert.Equal(t, domain.ErrHostHasReservations, err)
 }
 
 func TestDelete_TriedDeletingAdmin(t *testing.T) {
@@ -105,4 +107,5 @@ func TestDelete_TriedDeletingAdmin(t *testing.T) {
 	err := svc.Delete(callerID, id)
 
 	assert.Error(t, err)
+	assert.Equal(t, domain.ErrCannotDeleteAdmin, err)
 }
