@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bookem-user-service/client/roomclient"
 	"bookem-user-service/domain"
 	repo "bookem-user-service/repo"
 	util "bookem-user-service/util"
@@ -23,11 +24,12 @@ type Service interface {
 }
 
 type service struct {
-	repo repo.Repository
+	repo       repo.Repository
+	roomClient roomclient.RoomClient
 }
 
-func NewService(r repo.Repository) Service {
-	return &service{r}
+func NewService(r repo.Repository, roomClient roomclient.RoomClient) Service {
+	return &service{r, roomClient}
 }
 
 func (s *service) Register(dto *domain.UserCreateDTO) (*domain.User, error) {
@@ -257,8 +259,22 @@ func (s *service) Delete(callerID uint, id uint) error {
 func (s *service) canDeleteUser(user *domain.User) error {
 	switch user.Role {
 	case domain.Guest:
+		reservations, err := s.roomClient.GetPendingGuestReservations(user)
+		if err != nil {
+			return err
+		}
+		if len(reservations) > 0 {
+			return fmt.Errorf("user has pending reservations")
+		}
 		return nil
 	case domain.Host:
+		reservations, err := s.roomClient.GetActiveHostReservations(user)
+		if err != nil {
+			return err
+		}
+		if len(reservations) > 0 {
+			return fmt.Errorf("user has room with pending reservations")
+		}
 		return nil
 	default:
 		return fmt.Errorf("admin accounts cannot be deleted")
