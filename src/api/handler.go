@@ -115,3 +115,26 @@ func (h *Handler) findById(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, domain.NewUserDTO(user))
 }
+
+func (h *Handler) deleteById(ctx *gin.Context) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		log.Printf("Could not parse ID: %s", err.Error())
+		ctx.Error(err)
+		return
+	}
+
+	jwt, err := middleware.GetJwt(ctx)
+	if err != nil {
+		ctx.Error(fmt.Errorf("%w: %v", domain.ErrUnauthenticated, err))
+		return
+	}
+
+	err = h.service.Delete(jwt.ID, uint(id))
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusNoContent, nil)
+}
