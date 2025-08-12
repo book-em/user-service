@@ -20,5 +20,6 @@ FROM alpine:edge
 WORKDIR /app
 
 COPY --from=build /app/user-service .
+RUN mkdir -p /app/keys
 
 CMD ["/app/user-service"]
