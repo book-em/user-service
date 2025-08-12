@@ -14,5 +14,6 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o user-service .
 
 RUN chmod +x /app/scripts/wait-and-test.sh
+RUN mkdir -p /app/keys
 
 ENTRYPOINT ["/app/scripts/wait-and-test.sh"]
