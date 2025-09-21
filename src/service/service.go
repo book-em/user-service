@@ -34,11 +34,12 @@ func NewService(r repo.Repository, roomClient roomclient.RoomClient) Service {
 }
 
 func (s *service) Register(ctx context.Context, dto *domain.UserCreateDTO) (*domain.User, error) {
-	_, span1 := util.NewSpan(ctx, "hash-password")
-	defer span1.End()
+	util.TEL.Push(ctx, "hash-password")
+	defer util.TEL.Pop()
+
 	hashed, err := util.HashPassword(dto.Password)
 	if err != nil {
-		util.AddEvent(span1, "failed hashing password", err)
+		util.TEL.Event("failed hashing password", err)
 		return nil, domain.ErrHashingPassword
 	}
 
@@ -52,25 +53,25 @@ func (s *service) Register(ctx context.Context, dto *domain.UserCreateDTO) (*dom
 		Address:  dto.Address,
 	}
 
-	_, span2 := util.NewSpan(ctx, "db-query-user")
-	defer span2.End()
+	util.TEL.Push(ctx, "db-query-user")
+	defer util.TEL.Pop()
 	existing, _ := s.repo.FindByUsernameOrEmail(dto.Username, dto.Email)
 	if existing != nil {
 		if existing.Username == dto.Username {
-			util.AddEvent(span2, "username exists", nil)
+			util.TEL.Event("username exists", nil)
 			return nil, domain.ErrUsernameExists
 		}
 		if existing.Email == dto.Email {
-			util.AddEvent(span2, "email exists", nil)
+			util.TEL.Event("email exists", nil)
 			return nil, domain.ErrEmailExists
 		}
 	}
 
-	_, span3 := util.NewSpan(ctx, "db-insert-user")
-	defer span3.End()
+	util.TEL.Push(ctx, "db-insert-user")
+	defer util.TEL.Pop()
 	err = s.repo.Create(user)
 	if err != nil {
-		util.AddEvent(span3, "failed inserting user", err)
+		util.TEL.Event("failed inserting user", err)
 		return nil, fmt.Errorf("%w: %v", domain.ErrDBInternal, err)
 	}
 
