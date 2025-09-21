@@ -2,6 +2,7 @@ package test
 
 import (
 	domain "bookem-user-service/domain"
+	"context"
 	"errors"
 	"strings"
 	"testing"
@@ -18,7 +19,7 @@ func TestSuccess(t *testing.T) {
 	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(nil, nil)
 	mockRepo.On("Create", mock.AnythingOfType("*domain.User")).Return(nil)
 
-	user, err := svc.Register(&dto)
+	user, err := svc.Register(context.Background(), &dto)
 
 	assert.NoError(t, err)
 	assert.Equal(t, dto.Username, user.Username)
@@ -38,7 +39,7 @@ func TestUsernameExists(t *testing.T) {
 
 	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(&existing, nil)
 
-	user, err := svc.Register(&dto)
+	user, err := svc.Register(context.Background(), &dto)
 
 	assert.Nil(t, user)
 	assert.ErrorIs(t, err, domain.ErrUsernameExists)
@@ -57,7 +58,7 @@ func TestEmailExists(t *testing.T) {
 
 	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(&existing, nil)
 
-	user, err := svc.Register(&dto)
+	user, err := svc.Register(context.Background(), &dto)
 
 	assert.Nil(t, user)
 	assert.ErrorIs(t, err, domain.ErrEmailExists)
@@ -71,7 +72,7 @@ func TestCreateFails(t *testing.T) {
 	mockRepo.On("FindByUsernameOrEmail", dto.Username, dto.Email).Return(nil, nil)
 	mockRepo.On("Create", mock.Anything).Return(errors.New("db down"))
 
-	user, err := svc.Register(&dto)
+	user, err := svc.Register(context.Background(), &dto)
 
 	assert.Nil(t, user)
 	assert.ErrorContains(t, err, "db down")
