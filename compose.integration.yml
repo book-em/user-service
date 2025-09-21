@@ -27,6 +27,8 @@ services:
       JWT_PRIVATE_KEY_PATH: /app/keys/private_key.key
       JWT_PUBLIC_KEY_PATH: /app/keys/public_key.pem
       ENABLE_TEST_MODE: "true"
+      SERVICE_NAME: user-service
+      DEPLOYMENT_ENV: test
     depends_on:
       db:
         condition: service_healthy

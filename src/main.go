@@ -64,9 +64,7 @@ func connectToDb() {
 	log.Printf("Connected to DB!")
 }
 
-func initTracer() func(context.Context) error {
-	ctx := context.Background()
-
+func initTracer(ctx context.Context, serviceName, deploymentEnvironment string) func(context.Context) error {
 	exp, err := otlptracehttp.New(ctx)
 	if err != nil {
 		log.Fatalf("Failed to create an OTLP HTTP exporter: %v", err)
@@ -76,7 +74,8 @@ func initTracer() func(context.Context) error {
 		sdktrace.WithBatcher(exp),
 		sdktrace.WithResource(resource.NewWithAttributes(
 			semconv.SchemaURL,
-			semconv.ServiceName("user-service"),
+			semconv.ServiceName(serviceName),
+			semconv.DeploymentEnvironment(deploymentEnvironment),
 		)),
 	)
 	otel.SetTracerProvider(tp)
@@ -86,7 +85,11 @@ func initTracer() func(context.Context) error {
 
 func main() {
 	ctx := context.Background()
-	shutdown := initTracer()
+	shutdown := initTracer(
+		ctx,
+		os.Getenv("SERVICE_NAME"),
+		os.Getenv("DEPLOYMENT_ENV"),
+	)
 	defer shutdown(ctx)
 
 	connectToDb()
@@ -95,7 +98,7 @@ func main() {
 
 	server = gin.Default()
 
-	server.Use(otelgin.Middleware("user-service"))
+	server.Use(otelgin.Middleware(os.Getenv("SERVICE_NAME")))
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173", "http://localhost", "http://bookem.local"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
