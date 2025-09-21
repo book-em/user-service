@@ -58,8 +58,17 @@ func NewSpan(c *gin.Context, name string, attrs ...attribute.KeyValue) (context.
 // By default, spans created with NewSpan don't have a user.id set assuming the
 // user is not specified or the method is anonymous. You can add further user
 // context with this method.
-func SetSpanUser(span trace.Span, userId int) {
+func SetSpanUser(span trace.Span, userId uint) {
 	span.SetAttributes(attribute.String("user.id", fmt.Sprintf("%d", userId)))
+}
+
+// SetSpanUser adds user context to the given span.
+//
+// By default, spans created with NewSpan don't have a user.id set assuming the
+// user is not specified or the method is anonymous. You can add further user
+// context with this method.
+func AddAttribInt(span trace.Span, key string, val int) {
+	span.SetAttributes(attribute.Int(key, val))
 }
 
 // InjectSpan injects a tracere span inside an outgoing http request.
