@@ -61,12 +61,19 @@ func connectToDb() {
 
 func main() {
 	ctx := context.Background()
-	shutdown := utils.InitTracer(
+	// shutdown := utils.InitTracer(
+	// 	ctx,
+	// 	os.Getenv("SERVICE_NAME"),
+	// 	os.Getenv("DEPLOYMENT_ENV"),
+	// )
+	// defer shutdown(ctx)
+
+	shutdown2 := utils.TEL.Init(
 		ctx,
 		os.Getenv("SERVICE_NAME"),
 		os.Getenv("DEPLOYMENT_ENV"),
 	)
-	defer shutdown(ctx)
+	defer shutdown2(ctx)
 
 	connectToDb()
 	defer rawDB.Close()
