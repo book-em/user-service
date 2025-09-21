@@ -2,7 +2,9 @@ package utils
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net/http"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -96,4 +98,16 @@ func (t *Telemetry) Event(msg string, err error) {
 			span.SetStatus(codes.Error, err.Error())
 		}
 	}
+}
+
+func (t *Telemetry) SetAttrib(kv ...attribute.KeyValue) {
+	t.Top().Span.SetAttributes(kv...)
+}
+
+func (t *Telemetry) SetUser(id uint) {
+	t.Top().Span.SetAttributes(attribute.String("user.id", fmt.Sprintf("%d", id)))
+}
+
+func (t *Telemetry) Inject(outgoingRequest *http.Request) {
+	otel.GetTextMapPropagator().Inject(t.Ctx(), propagation.HeaderCarrier(outgoingRequest.Header))
 }

@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 type Handler struct {
@@ -44,21 +45,21 @@ func (h *Handler) registerUser(c *gin.Context) {
 }
 
 func (h *Handler) login(c *gin.Context) {
-	_, span := utils.NewSpan(c.Request.Context(), "login-user")
-	defer span.End()
+	utils.TEL.Push(c.Request.Context(), "login-user")
+	defer utils.TEL.Pop()
 
 	var dto domain.LoginDTO
 
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrInvalidInput, err))
-		utils.AddEvent(span, "failed binding JSON", err)
+		utils.TEL.Event("failed binding JSON", err)
 		return
 	}
 
 	jwt, err := h.service.Login(dto)
 	if err != nil {
 		c.Error(err)
-		utils.AddEvent(span, "failed logging in user", err)
+		utils.TEL.Event("failed logging in user", err)
 		return
 	}
 
@@ -66,29 +67,29 @@ func (h *Handler) login(c *gin.Context) {
 }
 
 func (h *Handler) update(c *gin.Context) {
-	_, span := utils.NewSpan(c.Request.Context(), "update-user")
-	defer span.End()
+	utils.TEL.Push(c.Request.Context(), "update-user")
+	defer utils.TEL.Pop()
 
 	jwt, err := middleware.GetJwt(c)
 	if err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrUnauthenticated, err))
-		utils.AddEvent(span, "unauthenticated", err)
+		utils.TEL.Event("unauthenticated", err)
 		return
 	}
 
 	var dto domain.UserUpdateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrInvalidInput, err))
-		utils.AddEvent(span, "failed binding JSON", err)
+		utils.TEL.Event("failed binding JSON", err)
 		return
 	}
 
-	utils.SetSpanUser(span, jwt.ID)
+	utils.TEL.SetUser(jwt.ID)
 
 	_, err = h.service.Update(jwt.ID, dto)
 	if err != nil {
 		c.Error(err)
-		utils.AddEvent(span, "failed updating user", err)
+		utils.TEL.Event("failed updating user", err)
 		return
 	}
 
@@ -96,29 +97,29 @@ func (h *Handler) update(c *gin.Context) {
 }
 
 func (h *Handler) changePassword(c *gin.Context) {
-	_, span := utils.NewSpan(c.Request.Context(), "change-user-password")
-	defer span.End()
+	utils.TEL.Push(c.Request.Context(), "change-user-password")
+	defer utils.TEL.Pop()
 
 	jwt, err := middleware.GetJwt(c)
 	if err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrUnauthenticated, err))
-		utils.AddEvent(span, "unauthenticated", err)
+		utils.TEL.Event("unauthenticated", err)
 		return
 	}
 
 	var dto domain.PasswordUpdateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrInvalidInput, err))
-		utils.AddEvent(span, "failed binding JSON", err)
+		utils.TEL.Event("failed binding JSON", err)
 		return
 	}
 
-	utils.SetSpanUser(span, jwt.ID)
+	utils.TEL.SetUser(jwt.ID)
 
 	_, err = h.service.ChangePassword(jwt.ID, dto)
 	if err != nil {
 		c.Error(err)
-		utils.AddEvent(span, "failed changing password", err)
+		utils.TEL.Event("failed changing password", err)
 		return
 	}
 
@@ -126,25 +127,25 @@ func (h *Handler) changePassword(c *gin.Context) {
 }
 
 func (h *Handler) findById(c *gin.Context) {
-	_, span := utils.NewSpan(c.Request.Context(), "find-user-by-id")
-	defer span.End()
+	utils.TEL.Push(c.Request.Context(), "find-user-by-id")
+	defer utils.TEL.Pop()
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		log.Printf("Could not parse ID: %s", err.Error())
 		c.Error(err)
-		utils.AddEvent(span, "failed parsing ID", err)
+		utils.TEL.Event("failed parsing ID", err)
 		return
 	}
 
-	utils.AddAttribInt(span, "id", id)
+	utils.TEL.SetAttrib(attribute.Int("id", id))
 
 	log.Printf("Find user by id %d", id)
 
 	user, err := h.service.FindById(uint(id))
 	if err != nil {
 		c.Error(err)
-		utils.AddEvent(span, "failed finding user by ID", err)
+		utils.TEL.Event("failed finding user by ID", err)
 		return
 	}
 
@@ -152,32 +153,32 @@ func (h *Handler) findById(c *gin.Context) {
 }
 
 func (h *Handler) deleteById(c *gin.Context) {
-	_, span := utils.NewSpan(c.Request.Context(), "update-user")
-	defer span.End()
+	utils.TEL.Push(c.Request.Context(), "update-user")
+	defer utils.TEL.Pop()
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		log.Printf("Could not parse ID: %s", err.Error())
 		c.Error(err)
-		utils.AddEvent(span, "failed parsing ID", err)
+		utils.TEL.Event("failed parsing ID", err)
 		return
 	}
 
-	utils.AddAttribInt(span, "id", id)
+	utils.TEL.SetAttrib(attribute.Int("id", id))
 
 	jwt, err := middleware.GetJwt(c)
 	if err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrUnauthenticated, err))
-		utils.AddEvent(span, "unauthenticatetd", err)
+		utils.TEL.Event("unauthenticatetd", err)
 		return
 	}
 
-	utils.SetSpanUser(span, jwt.ID)
+	utils.TEL.SetUser(jwt.ID)
 
 	err = h.service.Delete(jwt.ID, uint(id))
 	if err != nil {
 		c.Error(err)
-		utils.AddEvent(span, "could not delete user", err)
+		utils.TEL.Event("could not delete user", err)
 		return
 	}
 
