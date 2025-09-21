@@ -22,21 +22,21 @@ func NewHandler(us service.Service) Handler {
 }
 
 func (h *Handler) registerUser(c *gin.Context) {
-	ctx, span := utils.NewSpan(c.Request.Context(), "register-user")
-	defer span.End()
+	utils.TEL.Push(c.Request.Context(), "register-user")
+	defer utils.TEL.Pop()
 
 	var dto domain.UserCreateDTO
 
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrInvalidInput, err))
-		utils.AddEvent(span, "failed binding JSON", err)
+		utils.TEL.Event("failed binding JSON", err)
 		return
 	}
 
-	user, err := h.service.Register(ctx, &dto)
+	user, err := h.service.Register(utils.TEL.Ctx(), &dto)
 	if err != nil {
 		c.Error(err)
-		utils.AddEvent(span, "failed registering user", err)
+		utils.TEL.Event("failed registering user", err)
 		return
 	}
 
