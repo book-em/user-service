@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -20,6 +21,14 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
 )
 
 var (
@@ -55,13 +64,38 @@ func connectToDb() {
 	log.Printf("Connected to DB!")
 }
 
+func initTracer() func(context.Context) error {
+	ctx := context.Background()
+
+	exp, err := otlptracehttp.New(ctx)
+	if err != nil {
+		log.Fatalf("Failed to create an OTLP HTTP exporter: %v", err)
+	}
+
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceName("user-service"),
+		)),
+	)
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.TraceContext{})
+	return tp.Shutdown
+}
+
 func main() {
+	ctx := context.Background()
+	shutdown := initTracer()
+	defer shutdown(ctx)
+
 	connectToDb()
 	defer rawDB.Close()
 	syncDatabase()
 
 	server = gin.Default()
 
+	server.Use(otelgin.Middleware("user-service"))
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173", "http://localhost", "http://bookem.local"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
