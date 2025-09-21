@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -49,8 +49,8 @@ func InitTracer(ctx context.Context, serviceName, deploymentEnvironment string) 
 //
 // Function returns a context (used when submitting HTTP requests yourself, see
 // InjectSpan) and a span object (used in AddEvent) which you should close.
-func NewSpan(c *gin.Context, name string, attrs ...attribute.KeyValue) (context.Context, trace.Span) {
-	return tracer.Start(c.Request.Context(), name, trace.WithAttributes(attrs...))
+func NewSpan(ctx context.Context, name string, attrs ...attribute.KeyValue) (context.Context, trace.Span) {
+	return tracer.Start(ctx, name, trace.WithAttributes(attrs...))
 }
 
 // SetSpanUser adds user context to the given span.
@@ -86,7 +86,9 @@ func AddEvent(span trace.Span, msg string, err error) {
 		span.AddEvent(msg)
 	} else {
 		span.AddEvent(msg, trace.WithAttributes(
-			attribute.String("error", err.Error()),
+			attribute.String("error.message", err.Error()),
+			attribute.Bool("error", true),
 		))
+		span.SetStatus(codes.Error, err.Error())
 	}
 }

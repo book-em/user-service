@@ -5,13 +5,14 @@ import (
 	"bookem-user-service/domain"
 	repo "bookem-user-service/repo"
 	util "bookem-user-service/util"
+	"context"
 	"fmt"
 	"log"
 	"strings"
 )
 
 type Service interface {
-	Register(input *domain.UserCreateDTO) (*domain.User, error)
+	Register(ctx context.Context, input *domain.UserCreateDTO) (*domain.User, error)
 	Login(dto domain.LoginDTO) (string, error)
 	Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User, error)
 	ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error)
@@ -32,9 +33,12 @@ func NewService(r repo.Repository, roomClient roomclient.RoomClient) Service {
 	return &service{r, roomClient}
 }
 
-func (s *service) Register(dto *domain.UserCreateDTO) (*domain.User, error) {
+func (s *service) Register(ctx context.Context, dto *domain.UserCreateDTO) (*domain.User, error) {
+	_, span1 := util.NewSpan(ctx, "hash-password")
+	defer span1.End()
 	hashed, err := util.HashPassword(dto.Password)
 	if err != nil {
+		util.AddEvent(span1, "failed hashing password", err)
 		return nil, domain.ErrHashingPassword
 	}
 
@@ -48,18 +52,25 @@ func (s *service) Register(dto *domain.UserCreateDTO) (*domain.User, error) {
 		Address:  dto.Address,
 	}
 
+	_, span2 := util.NewSpan(ctx, "db-query-user")
+	defer span2.End()
 	existing, _ := s.repo.FindByUsernameOrEmail(dto.Username, dto.Email)
 	if existing != nil {
 		if existing.Username == dto.Username {
+			util.AddEvent(span2, "username exists", nil)
 			return nil, domain.ErrUsernameExists
 		}
 		if existing.Email == dto.Email {
+			util.AddEvent(span2, "email exists", nil)
 			return nil, domain.ErrEmailExists
 		}
 	}
 
+	_, span3 := util.NewSpan(ctx, "db-insert-user")
+	defer span3.End()
 	err = s.repo.Create(user)
 	if err != nil {
+		util.AddEvent(span3, "failed inserting user", err)
 		return nil, fmt.Errorf("%w: %v", domain.ErrDBInternal, err)
 	}
 
