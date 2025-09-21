@@ -18,17 +18,12 @@ import (
 	domain "bookem-user-service/domain"
 	repo "bookem-user-service/repo"
 	service "bookem-user-service/service"
+	utils "bookem-user-service/util"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
-	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/sdk/resource"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
 )
 
 var (
@@ -64,28 +59,9 @@ func connectToDb() {
 	log.Printf("Connected to DB!")
 }
 
-func initTracer(ctx context.Context, serviceName, deploymentEnvironment string) func(context.Context) error {
-	exp, err := otlptracehttp.New(ctx)
-	if err != nil {
-		log.Fatalf("Failed to create an OTLP HTTP exporter: %v", err)
-	}
-
-	tp := sdktrace.NewTracerProvider(
-		sdktrace.WithBatcher(exp),
-		sdktrace.WithResource(resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceName(serviceName),
-			semconv.DeploymentEnvironment(deploymentEnvironment),
-		)),
-	)
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.TraceContext{})
-	return tp.Shutdown
-}
-
 func main() {
 	ctx := context.Background()
-	shutdown := initTracer(
+	shutdown := utils.InitTracer(
 		ctx,
 		os.Getenv("SERVICE_NAME"),
 		os.Getenv("DEPLOYMENT_ENV"),
