@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -33,7 +34,7 @@ func TestUpdate_Success(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.Update(1, dto)
+	newUser, err := svc.Update(context.Background(), 1, dto)
 
 	assert.NoError(t, err)
 	assert.Equal(t, userAfter, *newUser)
@@ -50,7 +51,7 @@ func TestUpdate_SomeoneElse(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.Update(1, dto)
+	newUser, err := svc.Update(context.Background(), 1, dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)
@@ -72,7 +73,7 @@ func TestUpdate_UserNotFound(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.Update(uint(1), dto)
+	newUser, err := svc.Update(context.Background(), uint(1), dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)
@@ -98,7 +99,7 @@ func TestUpdate_UsernameTaken(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.Update(1, dto)
+	newUser, err := svc.Update(context.Background(), 1, dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)
@@ -125,7 +126,7 @@ func TestUpdate_EmailTaken(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.Update(1, dto)
+	newUser, err := svc.Update(context.Background(), 1, dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)
@@ -155,7 +156,7 @@ func TestUpdate_UsernameTakenEmailOk(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.Update(1, dto)
+	newUser, err := svc.Update(context.Background(), 1, dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)
@@ -185,7 +186,7 @@ func TestUpdate_UsernameOkEmailTaken(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.Update(1, dto)
+	newUser, err := svc.Update(context.Background(), 1, dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)

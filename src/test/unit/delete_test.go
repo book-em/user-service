@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -20,9 +21,9 @@ func TestDelete_Success(t *testing.T) {
 	user.Role = domain.Guest
 	mockRepo.On("FindById", id).Return(user, nil)
 	mockRepo.On("Delete", id).Return()
-	mockRoomClient.On("GetPendingGuestReservations", user).Return([]roomclient.ReservationDTO{}, nil)
+	mockRoomClient.On("GetPendingGuestReservations", context.Background(), user).Return([]roomclient.ReservationDTO{}, nil)
 
-	err := svc.Delete(callerID, id)
+	err := svc.Delete(context.Background(), callerID, id)
 
 	assert.NoError(t, err)
 }
@@ -36,7 +37,7 @@ func TestDelete_TriedToDeleteSomeoneElse(t *testing.T) {
 	user.ID = id
 	mockRepo.On("FindById", id).Return(user, nil)
 
-	err := svc.Delete(callerID, id)
+	err := svc.Delete(context.Background(), callerID, id)
 
 	assert.Error(t, err)
 	assert.Equal(t, domain.ErrUnauthorized, err)
@@ -49,7 +50,7 @@ func TestDelete_UserNotFound(t *testing.T) {
 	callerID := uint(1)
 	mockRepo.On("FindById", id).Return(nil, fmt.Errorf("user not found"))
 
-	err := svc.Delete(callerID, id)
+	err := svc.Delete(context.Background(), callerID, id)
 
 	assert.Error(t, err)
 	assert.Equal(t, domain.ErrNotFound, err)
@@ -66,9 +67,9 @@ func TestDelete_GuestHasPendingReservations(t *testing.T) {
 	mockRepo.On("FindById", id).Return(user, nil)
 	mockRepo.On("Delete", id).Return()
 	reservation := roomclient.ReservationDTO{}
-	mockRoomClient.On("GetPendingGuestReservations", user).Return([]roomclient.ReservationDTO{reservation}, nil)
+	mockRoomClient.On("GetPendingGuestReservations", context.Background(), user).Return([]roomclient.ReservationDTO{reservation}, nil)
 
-	err := svc.Delete(callerID, id)
+	err := svc.Delete(context.Background(), callerID, id)
 
 	assert.Error(t, err)
 	assert.Equal(t, domain.ErrGuestHasReservations, err)
@@ -85,9 +86,9 @@ func TestDelete_HostHasPendingReservations(t *testing.T) {
 	mockRepo.On("FindById", id).Return(user, nil)
 	mockRepo.On("Delete", id).Return()
 	reservation := roomclient.ReservationDTO{}
-	mockRoomClient.On("GetActiveHostReservations", user).Return([]roomclient.ReservationDTO{reservation}, nil)
+	mockRoomClient.On("GetActiveHostReservations", context.Background(), user).Return([]roomclient.ReservationDTO{reservation}, nil)
 
-	err := svc.Delete(callerID, id)
+	err := svc.Delete(context.Background(), callerID, id)
 
 	assert.Error(t, err)
 	assert.Equal(t, domain.ErrHostHasReservations, err)
@@ -104,7 +105,7 @@ func TestDelete_TriedDeletingAdmin(t *testing.T) {
 	mockRepo.On("FindById", id).Return(user, nil)
 	mockRepo.On("Delete", id).Return()
 
-	err := svc.Delete(callerID, id)
+	err := svc.Delete(context.Background(), callerID, id)
 
 	assert.Error(t, err)
 	assert.Equal(t, domain.ErrCannotDeleteAdmin, err)

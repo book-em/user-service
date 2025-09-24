@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -45,7 +46,7 @@ func TestLogin_Success(t *testing.T) {
 
 	// Verify
 
-	jwt, err := svc.Login(dto)
+	jwt, err := svc.Login(context.Background(), dto)
 
 	assert.NoError(t, err)
 	assert.NotEqual(t, "", jwt)
@@ -64,7 +65,7 @@ func TestLogin_UserNotFound(t *testing.T) {
 		dto.UsernameOrEmail, dto.UsernameOrEmail,
 	).Return(nil, fmt.Errorf("no such user"))
 
-	jwt, err := svc.Login(dto)
+	jwt, err := svc.Login(context.Background(), dto)
 
 	assert.ErrorIs(t, err, domain.ErrLoginFailed)
 	assert.Equal(t, "", jwt)
@@ -96,7 +97,7 @@ func TestLogin_WrongPassword(t *testing.T) {
 		dto.UsernameOrEmail, dto.UsernameOrEmail,
 	).Return(&user, nil)
 
-	jwt, err := svc.Login(dto)
+	jwt, err := svc.Login(context.Background(), dto)
 
 	assert.ErrorIs(t, err, domain.ErrLoginFailed)
 	assert.Equal(t, "", jwt)
@@ -137,7 +138,7 @@ func TestLogin_JWTFailed(t *testing.T) {
 
 	// Verify
 
-	jwt, err := svc.Login(dto)
+	jwt, err := svc.Login(context.Background(), dto)
 
 	assert.Error(t, err)
 	assert.Equal(t, "", jwt)
