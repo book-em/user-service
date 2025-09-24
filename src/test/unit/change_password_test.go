@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -33,7 +34,7 @@ func TestChangePassword_Success(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.ChangePassword(1, dto)
+	newUser, err := svc.ChangePassword(context.Background(), 1, dto)
 
 	t.Log(oldHashed)
 
@@ -50,7 +51,7 @@ func TestChangePassword_SomeoneElse(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.ChangePassword(1, dto)
+	newUser, err := svc.ChangePassword(context.Background(), 1, dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)
@@ -70,7 +71,7 @@ func TestChangePassword_UserNotFound(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.ChangePassword(1, dto)
+	newUser, err := svc.ChangePassword(context.Background(), 1, dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)
@@ -94,7 +95,7 @@ func TestChangePassword_PasswordsNotMatch(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.ChangePassword(1, dto)
+	newUser, err := svc.ChangePassword(context.Background(), 1, dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)
@@ -119,7 +120,7 @@ func TestChangePassword_BadOldPassword(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.ChangePassword(1, dto)
+	newUser, err := svc.ChangePassword(context.Background(), 1, dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)
@@ -142,7 +143,7 @@ func TestChangePassword_PasswordIsTheSame(t *testing.T) {
 
 	// Verify
 
-	newUser, err := svc.ChangePassword(1, dto)
+	newUser, err := svc.ChangePassword(context.Background(), 1, dto)
 
 	assert.Nil(t, newUser)
 	assert.Error(t, err)

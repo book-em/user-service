@@ -4,6 +4,7 @@ import (
 	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
 	service "bookem-user-service/service"
+	"context"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -63,14 +64,14 @@ type MockRoomClient struct {
 	mock.Mock
 }
 
-func (m *MockRoomClient) GetPendingGuestReservations(guest *domain.User) ([]roomclient.ReservationDTO, error) {
-	args := m.Called(guest)
+func (m *MockRoomClient) GetPendingGuestReservations(ctx context.Context, guest *domain.User) ([]roomclient.ReservationDTO, error) {
+	args := m.Called(ctx, guest)
 	reservations, _ := args.Get(0).([]roomclient.ReservationDTO)
 	return reservations, args.Error(1)
 }
 
-func (m *MockRoomClient) GetActiveHostReservations(host *domain.User) ([]roomclient.ReservationDTO, error) {
-	args := m.Called(host)
+func (m *MockRoomClient) GetActiveHostReservations(ctx context.Context, host *domain.User) ([]roomclient.ReservationDTO, error) {
+	args := m.Called(ctx, host)
 	reservations, _ := args.Get(0).([]roomclient.ReservationDTO)
 	return reservations, args.Error(1)
 }
