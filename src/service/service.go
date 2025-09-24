@@ -13,15 +13,15 @@ import (
 
 type Service interface {
 	Register(ctx context.Context, input *domain.UserCreateDTO) (*domain.User, error)
-	Login(dto domain.LoginDTO) (string, error)
-	Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User, error)
-	ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error)
-	FindById(id uint) (*domain.User, error)
-	Delete(callerID uint, id uint) error
+	Login(ctx context.Context, dto domain.LoginDTO) (string, error)
+	Update(ctx context.Context, callerID uint, dto domain.UserUpdateDTO) (*domain.User, error)
+	ChangePassword(ctx context.Context, callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error)
+	FindById(ctx context.Context, id uint) (*domain.User, error)
+	Delete(ctx context.Context, callerID uint, id uint) error
 
 	/// canDeleteUser returns an error if the user cannot be deleted right now.
 	/// The error specifies the reason why the operation cannot be done.
-	canDeleteUser(user *domain.User) error
+	canDeleteUser(ctx context.Context, user *domain.User) error
 }
 
 type service struct {
@@ -82,7 +82,7 @@ func (s *service) Register(ctx context.Context, dto *domain.UserCreateDTO) (*dom
 // It can accept both an email or a username.
 // On success, it returns a JWT string.
 // On error, it returns an empty string.
-func (s *service) Login(dto domain.LoginDTO) (string, error) {
+func (s *service) Login(ctx context.Context, dto domain.LoginDTO) (string, error) {
 	user, _ := s.repo.FindByUsernameOrEmail(dto.UsernameOrEmail, dto.UsernameOrEmail)
 
 	if user == nil {
@@ -107,7 +107,7 @@ func (s *service) Login(dto domain.LoginDTO) (string, error) {
 
 // Update updates the user (specified by his ID in the dto) with the new values
 // in the DTO. Fields with null values are skipped.
-func (s *service) Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User, error) {
+func (s *service) Update(ctx context.Context, callerID uint, dto domain.UserUpdateDTO) (*domain.User, error) {
 	log.Printf("User %d wants to update user %d", callerID, dto.Id)
 
 	// Users can only update themselves.
@@ -118,7 +118,7 @@ func (s *service) Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User,
 
 	// Search for the user.
 
-	user, err := s.FindById(dto.Id)
+	user, err := s.FindById(ctx, dto.Id)
 	if err != nil {
 		log.Printf("User %d not fonud", dto.Id)
 		return nil, domain.ErrNotFound
@@ -179,7 +179,7 @@ func (s *service) Update(callerID uint, dto domain.UserUpdateDTO) (*domain.User,
 }
 
 // ChangePassword changes the user's password.
-func (s *service) ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error) {
+func (s *service) ChangePassword(ctx context.Context, callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error) {
 	log.Printf("User %d wants to change password of user %d", callerID, dto.Id)
 
 	// User can only change his own password.
@@ -190,7 +190,7 @@ func (s *service) ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*
 
 	// Search for the user.
 
-	user, err := s.FindById(dto.Id)
+	user, err := s.FindById(ctx, dto.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +233,7 @@ func (s *service) ChangePassword(callerID uint, dto domain.PasswordUpdateDTO) (*
 	return user, nil
 }
 
-func (s *service) FindById(id uint) (*domain.User, error) {
+func (s *service) FindById(ctx context.Context, id uint) (*domain.User, error) {
 	user, err := s.repo.FindById(id)
 	if err != nil {
 		return nil, domain.ErrNotFound
@@ -241,7 +241,7 @@ func (s *service) FindById(id uint) (*domain.User, error) {
 	return user, nil
 }
 
-func (s *service) Delete(callerID uint, id uint) error {
+func (s *service) Delete(ctx context.Context, callerID uint, id uint) error {
 	log.Printf("User %d wants to delete user %d", callerID, id)
 
 	// User can only delete himself.
@@ -252,14 +252,14 @@ func (s *service) Delete(callerID uint, id uint) error {
 
 	// Search for the user.
 
-	user, err := s.FindById(id)
+	user, err := s.FindById(ctx, id)
 	if err != nil {
 		return err
 	}
 
 	// Check if user can be deleted.
 
-	err = s.canDeleteUser(user)
+	err = s.canDeleteUser(ctx, user)
 	if err != nil {
 		return err
 	}
@@ -272,10 +272,10 @@ func (s *service) Delete(callerID uint, id uint) error {
 	return nil
 }
 
-func (s *service) canDeleteUser(user *domain.User) error {
+func (s *service) canDeleteUser(ctx context.Context, user *domain.User) error {
 	switch user.Role {
 	case domain.Guest:
-		reservations, err := s.roomClient.GetPendingGuestReservations(user)
+		reservations, err := s.roomClient.GetPendingGuestReservations(ctx, user)
 		if err != nil {
 			return err
 		}
@@ -284,7 +284,7 @@ func (s *service) canDeleteUser(user *domain.User) error {
 		}
 		return nil
 	case domain.Host:
-		reservations, err := s.roomClient.GetActiveHostReservations(user)
+		reservations, err := s.roomClient.GetActiveHostReservations(ctx, user)
 		if err != nil {
 			return err
 		}

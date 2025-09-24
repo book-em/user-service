@@ -56,7 +56,7 @@ func (h *Handler) login(c *gin.Context) {
 		return
 	}
 
-	jwt, err := h.service.Login(dto)
+	jwt, err := h.service.Login(utils.TEL.Ctx(), dto)
 	if err != nil {
 		c.Error(err)
 		utils.TEL.Event("failed logging in user", err)
@@ -86,7 +86,7 @@ func (h *Handler) update(c *gin.Context) {
 
 	utils.TEL.SetUser(jwt.ID)
 
-	_, err = h.service.Update(jwt.ID, dto)
+	_, err = h.service.Update(utils.TEL.Ctx(), jwt.ID, dto)
 	if err != nil {
 		c.Error(err)
 		utils.TEL.Event("failed updating user", err)
@@ -116,7 +116,7 @@ func (h *Handler) changePassword(c *gin.Context) {
 
 	utils.TEL.SetUser(jwt.ID)
 
-	_, err = h.service.ChangePassword(jwt.ID, dto)
+	_, err = h.service.ChangePassword(utils.TEL.Ctx(), jwt.ID, dto)
 	if err != nil {
 		c.Error(err)
 		utils.TEL.Event("failed changing password", err)
@@ -142,7 +142,7 @@ func (h *Handler) findById(c *gin.Context) {
 
 	log.Printf("Find user by id %d", id)
 
-	user, err := h.service.FindById(uint(id))
+	user, err := h.service.FindById(utils.TEL.Ctx(), uint(id))
 	if err != nil {
 		c.Error(err)
 		utils.TEL.Event("failed finding user by ID", err)
@@ -175,7 +175,7 @@ func (h *Handler) deleteById(c *gin.Context) {
 
 	utils.TEL.SetUser(jwt.ID)
 
-	err = h.service.Delete(jwt.ID, uint(id))
+	err = h.service.Delete(utils.TEL.Ctx(), jwt.ID, uint(id))
 	if err != nil {
 		c.Error(err)
 		utils.TEL.Event("could not delete user", err)
