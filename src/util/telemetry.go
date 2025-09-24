@@ -112,6 +112,11 @@ func (t *Telemetry) Event(msg string, err error) {
 	}
 }
 
+func (t *Telemetry) Eventf(msg string, err error, a ...any) {
+	msgFinal := fmt.Sprintf(msg, a...)
+	t.Event(msgFinal, err)
+}
+
 func (t *Telemetry) SetAttrib(kv ...attribute.KeyValue) {
 	if t.tracerReady {
 		t.Top().Span.SetAttributes(kv...)
