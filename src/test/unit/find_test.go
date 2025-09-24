@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -16,7 +17,7 @@ func TestFindById_Success(t *testing.T) {
 	user.ID = id
 
 	mockRepo.On("FindById", id).Return(user, nil)
-	userGot, err := svc.FindById(id)
+	userGot, err := svc.FindById(context.Background(), id)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, userGot)
@@ -33,7 +34,7 @@ func TestFindById_UserNotFound(t *testing.T) {
 	user.ID = id
 
 	mockRepo.On("FindById", id).Return(nil, fmt.Errorf("no such user"))
-	userGot, err := svc.FindById(id)
+	userGot, err := svc.FindById(context.Background(), id)
 
 	assert.Error(t, err)
 	assert.Nil(t, userGot)
