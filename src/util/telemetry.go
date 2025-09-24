@@ -23,7 +23,11 @@ type SpanPair struct {
 }
 
 type Telemetry struct {
-	Tracer trace.Tracer
+	// During tests, the tracer is not set up, so we silently ignore tracing.
+	// This has to be done manually (i.e. don't call tracer methods, don't touch
+	// spans etc.)
+	tracerReady bool
+	Tracer      trace.Tracer
 
 	SpanStack []SpanPair
 }
@@ -50,19 +54,27 @@ func (t *Telemetry) Init(ctx context.Context, serviceName, deploymentEnvironment
 		otel.SetTextMapPropagator(propagation.TraceContext{})
 
 		t.Tracer = otel.Tracer(serviceName)
+		t.tracerReady = true
 		return tp.Shutdown
 	}
 }
 
 func (t *Telemetry) Push(ctx context.Context, name string, attrs ...attribute.KeyValue) {
-	newCtx, span := t.Tracer.Start(ctx, name, trace.WithAttributes(attrs...))
-
-	t.SpanStack = append(t.SpanStack, SpanPair{Ctx: newCtx, Span: span})
+	if t.tracerReady {
+		newCtx, span := t.Tracer.Start(ctx, name, trace.WithAttributes(attrs...))
+		t.SpanStack = append(t.SpanStack, SpanPair{Ctx: newCtx, Span: span})
+	} else {
+		newCtx := ctx
+		var span trace.Span
+		t.SpanStack = append(t.SpanStack, SpanPair{Ctx: newCtx, Span: span})
+	}
 }
 
 func (t *Telemetry) Pop() {
 	top := t.SpanStack[len(t.SpanStack)-1]
-	top.Span.End()
+	if t.tracerReady {
+		top.Span.End()
+	}
 	t.SpanStack = t.SpanStack[:len(t.SpanStack)-1]
 }
 
@@ -85,7 +97,7 @@ func (t *Telemetry) Event(msg string, err error) {
 	}
 
 	// Tracing
-	if len(t.SpanStack) > 0 {
+	if t.tracerReady && len(t.SpanStack) > 0 {
 		span := t.SpanStack[len(t.SpanStack)-1].Span
 
 		if err == nil {
@@ -101,11 +113,15 @@ func (t *Telemetry) Event(msg string, err error) {
 }
 
 func (t *Telemetry) SetAttrib(kv ...attribute.KeyValue) {
-	t.Top().Span.SetAttributes(kv...)
+	if t.tracerReady {
+		t.Top().Span.SetAttributes(kv...)
+	}
 }
 
 func (t *Telemetry) SetUser(id uint) {
-	t.Top().Span.SetAttributes(attribute.String("user.id", fmt.Sprintf("%d", id)))
+	if t.tracerReady {
+		t.Top().Span.SetAttributes(attribute.String("user.id", fmt.Sprintf("%d", id)))
+	}
 }
 
 func (t *Telemetry) Inject(outgoingRequest *http.Request) {
