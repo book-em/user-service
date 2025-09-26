@@ -149,18 +149,9 @@ func (h *Handler) findById(c *gin.Context) {
 	c.JSON(http.StatusOK, domain.NewUserDTO(user))
 }
 
-func (h *Handler) deleteById(c *gin.Context) {
+func (h *Handler) delete(c *gin.Context) {
 	utils.TEL.Push(c.Request.Context(), "update-user")
 	defer utils.TEL.Pop()
-
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.Error(err)
-		utils.TEL.Error("failed parsing ID", err)
-		return
-	}
-
-	utils.TEL.SetAttrib(attribute.Int("id", id))
 
 	jwt, err := middleware.GetJwt(c)
 	if err != nil {
@@ -169,9 +160,16 @@ func (h *Handler) deleteById(c *gin.Context) {
 		return
 	}
 
+	jwtString, err := middleware.GetJwtString(c)
+	if err != nil {
+		c.Error(fmt.Errorf("%w: %v", domain.ErrUnauthenticated, err))
+		utils.TEL.Error("unauthenticatetd", err)
+		return
+	}
+
 	utils.TEL.SetUser(jwt.ID)
 
-	err = h.service.Delete(utils.TEL.Ctx(), jwt.ID, uint(id))
+	err = h.service.Delete(utils.TEL.Ctx(), jwt.ID, jwtString)
 	if err != nil {
 		c.Error(err)
 		utils.TEL.Error("could not delete user", err)
