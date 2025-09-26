@@ -21,5 +21,5 @@ func (r *Route) Route(rg *gin.RouterGroup) {
 	rg.PUT("/update", r.handler.update)
 	rg.PUT("/password", r.handler.changePassword)
 	rg.GET("/:id", r.handler.findById)
-	rg.DELETE("/:id", r.handler.deleteById)
+	rg.DELETE("/", r.handler.delete)
 }

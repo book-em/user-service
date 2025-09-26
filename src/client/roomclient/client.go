@@ -1,18 +1,18 @@
 package roomclient
 
 import (
-	"bookem-user-service/domain"
 	utils "bookem-user-service/util"
 	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 )
 
 type RoomClient interface {
-	// GetPendingGuestReservations finds all reservations made by `guest` that
-	// haven't completed yet. The user must be a guest.
-	GetPendingGuestReservations(ctx context.Context, guest *domain.User) ([]ReservationDTO, error)
 	// GetActiveHostReservations finds all reservations made to rooms owned by
 	// `host` that haven't completed yet. The user must be a host.
-	GetActiveHostReservations(ctx context.Context, host *domain.User) ([]ReservationDTO, error)
+	GetActiveHostReservations(ctx context.Context, jwt string) ([]ReservationDTO, error)
 }
 
 type roomClient struct {
@@ -21,28 +21,39 @@ type roomClient struct {
 
 func NewRoomClient() RoomClient {
 	return &roomClient{
-		baseURL: "http://localhost:9999", // Placeholder URL for now
+		baseURL: "http://room-service:8080/api", // TODO: This should not be hardcoded
 	}
 }
 
-func (c *roomClient) GetPendingGuestReservations(ctx context.Context, guest *domain.User) ([]ReservationDTO, error) {
-	utils.TEL.Push(ctx, "get-reservation-requests-made-by-guest")
+func (c *roomClient) GetActiveHostReservations(ctx context.Context, jwt string) ([]ReservationDTO, error) {
+	utils.TEL.Push(ctx, "get-active-reservations-for-host")
 	defer utils.TEL.Pop()
 
-	if guest.Role != domain.Guest {
-		return []ReservationDTO{}, domain.ErrUnauthorized
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/reservations/host/active", c.baseURL), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+jwt)
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		utils.TEL.Error("error ", err)
+		return nil, err
 	}
 
-	return []ReservationDTO{}, nil
-}
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		utils.TEL.Error("parsing response error", err)
 
-func (c *roomClient) GetActiveHostReservations(ctx context.Context, host *domain.User) ([]ReservationDTO, error) {
-	utils.TEL.Push(ctx, "get-reservation-requests-for-host")
-	defer utils.TEL.Pop()
-
-	if host.Role != domain.Host {
-		return []ReservationDTO{}, domain.ErrUnauthorized
+		return nil, err
 	}
 
-	return []ReservationDTO{}, nil
+	var obj []ReservationDTO
+	if err := json.Unmarshal(bodyBytes, &obj); err != nil {
+		utils.TEL.Error("JSON unmarshall error", err)
+
+		return nil, err
+	}
+
+	return obj, nil
 }

@@ -16,6 +16,7 @@ import (
 
 	api "bookem-user-service/api"
 	"bookem-user-service/api/middleware"
+	"bookem-user-service/client/reservationclient"
 	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
 	repo "bookem-user-service/repo"
@@ -100,9 +101,10 @@ func main() {
 	})
 
 	roomclient := roomclient.NewRoomClient()
+	reservationclient := reservationclient.NewReservationClient()
 
 	repo := repo.NewRepository(dB)
-	service := service.NewService(repo, roomclient)
+	service := service.NewService(repo, roomclient, reservationclient)
 	handler := api.NewHandler(service)
 	route := *api.NewRoute(handler)
 
