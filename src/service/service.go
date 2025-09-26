@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bookem-user-service/client/reservationclient"
 	"bookem-user-service/client/roomclient"
 	"bookem-user-service/domain"
 	repo "bookem-user-service/repo"
@@ -16,20 +17,21 @@ type Service interface {
 	Update(ctx context.Context, callerID uint, dto domain.UserUpdateDTO) (*domain.User, error)
 	ChangePassword(ctx context.Context, callerID uint, dto domain.PasswordUpdateDTO) (*domain.User, error)
 	FindById(ctx context.Context, id uint) (*domain.User, error)
-	Delete(ctx context.Context, callerID uint, id uint) error
+	Delete(ctx context.Context, userId uint, jwt string) error
 
 	/// canDeleteUser returns an error if the user cannot be deleted right now.
 	/// The error specifies the reason why the operation cannot be done.
-	canDeleteUser(ctx context.Context, user *domain.User) error
+	canDeleteUser(ctx context.Context, user *domain.User, jwt string) error
 }
 
 type service struct {
-	repo       repo.Repository
-	roomClient roomclient.RoomClient
+	repo              repo.Repository
+	roomClient        roomclient.RoomClient
+	reservationClient reservationclient.ReservationClient
 }
 
-func NewService(r repo.Repository, roomClient roomclient.RoomClient) Service {
-	return &service{r, roomClient}
+func NewService(r repo.Repository, roomClient roomclient.RoomClient, reservationClient reservationclient.ReservationClient) Service {
+	return &service{r, roomClient, reservationClient}
 }
 
 func (s *service) Register(ctx context.Context, dto *domain.UserCreateDTO) (*domain.User, error) {
@@ -288,24 +290,17 @@ func (s *service) FindById(ctx context.Context, id uint) (*domain.User, error) {
 	return user, nil
 }
 
-func (s *service) Delete(ctx context.Context, callerID uint, id uint) error {
-	util.TEL.Info("user delete request", "caller_id", callerID, "user_id", id)
-
-	// User can only delete himself.
-
-	if id != callerID {
-		util.TEL.Error("user trying to delete someone else", nil)
-		return domain.ErrUnauthorized
-	}
+func (s *service) Delete(ctx context.Context, userId uint, jwt string) error {
+	util.TEL.Info("user wants to delete himself", "user_id", userId)
 
 	// Search for the user.
 
 	util.TEL.Push(ctx, "find-user")
 	defer util.TEL.Pop()
 
-	user, err := s.FindById(util.TEL.Ctx(), id)
+	user, err := s.FindById(util.TEL.Ctx(), userId)
 	if err != nil {
-		util.TEL.Error("user not found", err, "id", id)
+		util.TEL.Error("user not found", err, "id", userId)
 		return err
 	}
 
@@ -314,9 +309,9 @@ func (s *service) Delete(ctx context.Context, callerID uint, id uint) error {
 	util.TEL.Push(ctx, "delete-safety-check")
 	defer util.TEL.Pop()
 
-	err = s.canDeleteUser(util.TEL.Ctx(), user)
+	err = s.canDeleteUser(util.TEL.Ctx(), user, jwt)
 	if err != nil {
-		util.TEL.Error("cannot delete user", err, "id", id)
+		util.TEL.Error("cannot delete user", err, "id", userId)
 		return err
 	}
 
@@ -326,35 +321,35 @@ func (s *service) Delete(ctx context.Context, callerID uint, id uint) error {
 	defer util.TEL.Pop()
 
 	s.repo.Delete(user.ID)
-	util.TEL.Info("User deleted", "id", id)
+	util.TEL.Info("User deleted", "id", userId)
 
 	return nil
 }
 
-func (s *service) canDeleteUser(ctx context.Context, user *domain.User) error {
+func (s *service) canDeleteUser(ctx context.Context, user *domain.User, jwt string) error {
 	util.TEL.Info("check if user can be deleted", "id", user.ID)
 
 	switch user.Role {
 	case domain.Guest:
-		util.TEL.Debug("user is guest - must not have any reservations")
-		reservations, err := s.roomClient.GetPendingGuestReservations(ctx, user)
+		util.TEL.Debug("user is guest - must not have any active reservations")
+		reservations, err := s.reservationClient.GetActiveGuestReservations(ctx, jwt)
 		if err != nil {
 			util.TEL.Error("could not check", err)
 			return err
 		}
 		if len(reservations) > 0 {
-			util.TEL.Error("guest has reservations, cannot delete user", nil)
+			util.TEL.Error("guest has active reservations, cannot delete user", nil)
 			return domain.ErrGuestHasReservations
 		}
 		return nil
 	case domain.Host:
-		util.TEL.Debug("user is host - rooms must not have any reservations")
-		reservations, err := s.roomClient.GetActiveHostReservations(ctx, user)
+		util.TEL.Debug("user is host - rooms must not have any active reservations")
+		reservations, err := s.roomClient.GetActiveHostReservations(ctx, jwt)
 		if err != nil {
 			return err
 		}
 		if len(reservations) > 0 {
-			util.TEL.Error("host's rooms have reservations, cannot delete user", nil)
+			util.TEL.Error("host's rooms have active reservations, cannot delete user", nil)
 			return domain.ErrHostHasReservations
 		}
 		return nil
