@@ -12,7 +12,7 @@ import (
 )
 
 func TestChangePassword_Success(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
@@ -43,7 +43,7 @@ func TestChangePassword_Success(t *testing.T) {
 }
 
 func TestChangePassword_SomeoneElse(t *testing.T) {
-	svc, _, _ := createTestService()
+	svc, _, _, _ := createTestService()
 
 	// Prepare
 
@@ -59,7 +59,7 @@ func TestChangePassword_SomeoneElse(t *testing.T) {
 }
 
 func TestChangePassword_UserNotFound(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
@@ -78,7 +78,7 @@ func TestChangePassword_UserNotFound(t *testing.T) {
 }
 
 func TestChangePassword_PasswordsNotMatch(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
@@ -103,7 +103,7 @@ func TestChangePassword_PasswordsNotMatch(t *testing.T) {
 }
 
 func TestChangePassword_BadOldPassword(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
@@ -127,7 +127,7 @@ func TestChangePassword_BadOldPassword(t *testing.T) {
 }
 
 func TestChangePassword_PasswordIsTheSame(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
