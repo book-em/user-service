@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bookem-user-service/client/reservationclient"
 	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
 	service "bookem-user-service/service"
@@ -9,13 +10,14 @@ import (
 	mock "github.com/stretchr/testify/mock"
 )
 
-func createTestService() (service.Service, *MockRepo, *MockRoomClient) {
+func createTestService() (service.Service, *MockRepo, *MockRoomClient, *MockReservationClient) {
 	mockRepo := new(MockRepo)
 	mockRoomClient := new(MockRoomClient)
+	mockReservationClient := new(MockReservationClient)
 
-	svc := service.NewService(mockRepo, mockRoomClient)
+	svc := service.NewService(mockRepo, mockRoomClient, mockReservationClient)
 
-	return svc, mockRepo, mockRoomClient
+	return svc, mockRepo, mockRoomClient, mockReservationClient
 }
 
 // ---------------------------------------------- Mock repo
@@ -64,15 +66,21 @@ type MockRoomClient struct {
 	mock.Mock
 }
 
-func (m *MockRoomClient) GetPendingGuestReservations(ctx context.Context, guest *domain.User) ([]roomclient.ReservationDTO, error) {
-	args := m.Called(ctx, guest)
+func (m *MockRoomClient) GetActiveHostReservations(ctx context.Context, jwt string) ([]roomclient.ReservationDTO, error) {
+	args := m.Called(ctx, jwt)
 	reservations, _ := args.Get(0).([]roomclient.ReservationDTO)
 	return reservations, args.Error(1)
 }
 
-func (m *MockRoomClient) GetActiveHostReservations(ctx context.Context, host *domain.User) ([]roomclient.ReservationDTO, error) {
-	args := m.Called(ctx, host)
-	reservations, _ := args.Get(0).([]roomclient.ReservationDTO)
+// ---------------------------------------------- Mock reservation client
+
+type MockReservationClient struct {
+	mock.Mock
+}
+
+func (m *MockReservationClient) GetActiveGuestReservations(ctx context.Context, jwt string) ([]reservationclient.ReservationDTO, error) {
+	args := m.Called(ctx, jwt)
+	reservations, _ := args.Get(0).([]reservationclient.ReservationDTO)
 	return reservations, args.Error(1)
 }
 
