@@ -11,7 +11,7 @@ import (
 )
 
 func TestUpdate_Success(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
@@ -41,7 +41,7 @@ func TestUpdate_Success(t *testing.T) {
 }
 
 func TestUpdate_SomeoneElse(t *testing.T) {
-	svc, _, _ := createTestService()
+	svc, _, _, _ := createTestService()
 
 	// Prepare
 
@@ -59,7 +59,7 @@ func TestUpdate_SomeoneElse(t *testing.T) {
 }
 
 func TestUpdate_UserNotFound(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
@@ -80,7 +80,7 @@ func TestUpdate_UserNotFound(t *testing.T) {
 }
 
 func TestUpdate_UsernameTaken(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
@@ -107,7 +107,7 @@ func TestUpdate_UsernameTaken(t *testing.T) {
 }
 
 func TestUpdate_EmailTaken(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
@@ -134,7 +134,7 @@ func TestUpdate_EmailTaken(t *testing.T) {
 }
 
 func TestUpdate_UsernameTakenEmailOk(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
@@ -164,7 +164,7 @@ func TestUpdate_UsernameTakenEmailOk(t *testing.T) {
 }
 
 func TestUpdate_UsernameOkEmailTaken(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	// Prepare
 
