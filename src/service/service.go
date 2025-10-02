@@ -208,7 +208,7 @@ func (s *service) ChangePassword(ctx context.Context, callerID uint, dto domain.
 	// User can only change his own password.
 
 	if callerID != dto.Id {
-		util.TEL.Error("user trying to update someone else", nil)
+		util.TEL.Error("user trying to change password of someone else", nil)
 		return nil, domain.ErrUnauthorized
 	}
 
@@ -294,7 +294,7 @@ func (s *service) Delete(ctx context.Context, callerID uint, id uint) error {
 	// User can only delete himself.
 
 	if id != callerID {
-		util.TEL.Error("user trying to update someone else", nil)
+		util.TEL.Error("user trying to delete someone else", nil)
 		return domain.ErrUnauthorized
 	}
 

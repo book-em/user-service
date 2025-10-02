@@ -186,11 +186,12 @@ func (t *Telemetry) Error(msg string, err error, attrs ...any) {
 	}
 
 	if span := t.currentSpan(); span != nil {
-		span.AddEvent(msg, trace.WithAttributes(
-			attribute.String("error.message", err.Error()),
-			attribute.Bool("error", true),
-		))
-		span.SetStatus(codes.Error, err.Error())
+		span.AddEvent(msg, trace.WithAttributes(attribute.Bool("error", true)))
+		span.SetStatus(codes.Error, "error")
+		if err != nil {
+			span.AddEvent(msg, trace.WithAttributes(attribute.String("error.message", err.Error())))
+			span.SetStatus(codes.Error, err.Error())
+		}
 	}
 }
 
