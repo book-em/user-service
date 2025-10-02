@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 
+	slogmulti "github.com/samber/slog-multi"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -30,11 +33,22 @@ type Telemetry struct {
 	Tracer      trace.Tracer
 
 	SpanStack []SpanPair
+
+	logger *slog.Logger
 }
 
 var TEL Telemetry
 
 func (t *Telemetry) Init(ctx context.Context, serviceName, deploymentEnvironment string) func(context.Context) error {
+	// [0] Init logger
+	{
+		t.logger = slog.New(
+			slogmulti.Fanout(
+				// TODO: Save to file and then use promtail, use JSON handler there.
+				slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+			),
+		)
+	}
 	// [1] Init tracer
 	{
 		exp, err := otlptracehttp.New(ctx)
@@ -90,9 +104,9 @@ func (t *Telemetry) Event(msg string, err error) {
 	// Logging
 	{
 		if err == nil {
-			log.Println(msg)
+			t.logger.Info(msg)
 		} else {
-			log.Printf("%s: %v\n", msg, err)
+			t.logger.Error(msg, "error", err)
 		}
 	}
 
@@ -131,4 +145,43 @@ func (t *Telemetry) SetUser(id uint) {
 
 func (t *Telemetry) Inject(outgoingRequest *http.Request) {
 	otel.GetTextMapPropagator().Inject(t.Ctx(), propagation.HeaderCarrier(outgoingRequest.Header))
+}
+
+func (t *Telemetry) Info(msg string, attrs ...any) {
+	t.logger.Info(msg, attrs...)
+	if span := t.currentSpan(); span != nil {
+		span.AddEvent(msg)
+	}
+}
+
+func (t *Telemetry) Warn(msg string, attrs ...any) {
+	t.logger.Warn(msg, attrs...)
+	if span := t.currentSpan(); span != nil {
+		span.AddEvent(msg)
+	}
+}
+
+func (t *Telemetry) Debug(msg string, attrs ...any) {
+	t.logger.Debug(msg, attrs...)
+	if span := t.currentSpan(); span != nil {
+		span.AddEvent(msg)
+	}
+}
+
+func (t *Telemetry) Error(msg string, err error, attrs ...any) {
+	t.logger.Error(msg, attrs...)
+	if span := t.currentSpan(); span != nil {
+		span.AddEvent(msg, trace.WithAttributes(
+			attribute.String("error.message", err.Error()),
+			attribute.Bool("error", true),
+		))
+		span.SetStatus(codes.Error, err.Error())
+	}
+}
+
+func (t *Telemetry) currentSpan() trace.Span {
+	if t.tracerReady && len(t.SpanStack) > 0 {
+		return t.SpanStack[len(t.SpanStack)-1].Span
+	}
+	return nil
 }
