@@ -6,7 +6,6 @@ import (
 	service "bookem-user-service/service"
 	utils "bookem-user-service/util"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -30,14 +29,14 @@ func (h *Handler) registerUser(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrInvalidInput, err))
-		utils.TEL.Event("failed binding JSON", err)
+		utils.TEL.Error("failed binding JSON", err)
 		return
 	}
 
 	user, err := h.service.Register(utils.TEL.Ctx(), &dto)
 	if err != nil {
 		c.Error(err)
-		utils.TEL.Event("failed registering user", err)
+		utils.TEL.Error("failed registering user", err)
 		return
 	}
 
@@ -52,14 +51,14 @@ func (h *Handler) login(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrInvalidInput, err))
-		utils.TEL.Event("failed binding JSON", err)
+		utils.TEL.Error("failed binding JSON", err)
 		return
 	}
 
 	jwt, err := h.service.Login(utils.TEL.Ctx(), dto)
 	if err != nil {
 		c.Error(err)
-		utils.TEL.Event("failed logging in user", err)
+		utils.TEL.Error("failed logging in user", err)
 		return
 	}
 
@@ -73,14 +72,14 @@ func (h *Handler) update(c *gin.Context) {
 	jwt, err := middleware.GetJwt(c)
 	if err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrUnauthenticated, err))
-		utils.TEL.Event("unauthenticated", err)
+		utils.TEL.Error("unauthenticated", err)
 		return
 	}
 
 	var dto domain.UserUpdateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrInvalidInput, err))
-		utils.TEL.Event("failed binding JSON", err)
+		utils.TEL.Error("failed binding JSON", err)
 		return
 	}
 
@@ -89,7 +88,7 @@ func (h *Handler) update(c *gin.Context) {
 	_, err = h.service.Update(utils.TEL.Ctx(), jwt.ID, dto)
 	if err != nil {
 		c.Error(err)
-		utils.TEL.Event("failed updating user", err)
+		utils.TEL.Error("failed updating user", err)
 		return
 	}
 
@@ -103,14 +102,14 @@ func (h *Handler) changePassword(c *gin.Context) {
 	jwt, err := middleware.GetJwt(c)
 	if err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrUnauthenticated, err))
-		utils.TEL.Event("unauthenticated", err)
+		utils.TEL.Error("unauthenticated", err)
 		return
 	}
 
 	var dto domain.PasswordUpdateDTO
 	if err := c.ShouldBindJSON(&dto); err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrInvalidInput, err))
-		utils.TEL.Event("failed binding JSON", err)
+		utils.TEL.Error("failed binding JSON", err)
 		return
 	}
 
@@ -119,7 +118,7 @@ func (h *Handler) changePassword(c *gin.Context) {
 	_, err = h.service.ChangePassword(utils.TEL.Ctx(), jwt.ID, dto)
 	if err != nil {
 		c.Error(err)
-		utils.TEL.Event("failed changing password", err)
+		utils.TEL.Error("failed changing password", err)
 		return
 	}
 
@@ -132,20 +131,18 @@ func (h *Handler) findById(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		log.Printf("Could not parse ID: %s", err.Error())
 		c.Error(err)
-		utils.TEL.Event("failed parsing ID", err)
+		utils.TEL.Error("failed parsing ID", err)
 		return
 	}
 
 	utils.TEL.SetAttrib(attribute.Int("id", id))
-
-	log.Printf("Find user by id %d", id)
+	utils.TEL.Debug("find user", "id", id)
 
 	user, err := h.service.FindById(utils.TEL.Ctx(), uint(id))
 	if err != nil {
 		c.Error(err)
-		utils.TEL.Event("failed finding user by ID", err)
+		utils.TEL.Error("failed finding user by ID", err)
 		return
 	}
 
@@ -158,9 +155,8 @@ func (h *Handler) deleteById(c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		log.Printf("Could not parse ID: %s", err.Error())
 		c.Error(err)
-		utils.TEL.Event("failed parsing ID", err)
+		utils.TEL.Error("failed parsing ID", err)
 		return
 	}
 
@@ -169,7 +165,7 @@ func (h *Handler) deleteById(c *gin.Context) {
 	jwt, err := middleware.GetJwt(c)
 	if err != nil {
 		c.Error(fmt.Errorf("%w: %v", domain.ErrUnauthenticated, err))
-		utils.TEL.Event("unauthenticatetd", err)
+		utils.TEL.Error("unauthenticatetd", err)
 		return
 	}
 
@@ -178,7 +174,7 @@ func (h *Handler) deleteById(c *gin.Context) {
 	err = h.service.Delete(utils.TEL.Ctx(), jwt.ID, uint(id))
 	if err != nil {
 		c.Error(err)
-		utils.TEL.Event("could not delete user", err)
+		utils.TEL.Error("could not delete user", err)
 		return
 	}
 
