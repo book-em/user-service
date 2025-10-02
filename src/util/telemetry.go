@@ -34,7 +34,8 @@ type Telemetry struct {
 
 	SpanStack []SpanPair
 
-	logger *slog.Logger
+	loggerReady bool
+	logger      *slog.Logger
 }
 
 var TEL Telemetry
@@ -48,6 +49,8 @@ func (t *Telemetry) Init(ctx context.Context, serviceName, deploymentEnvironment
 				slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
 			),
 		)
+
+		t.loggerReady = true
 	}
 	// [1] Init tracer
 	{
@@ -100,36 +103,36 @@ func (t *Telemetry) Ctx() context.Context {
 	return t.Top().Ctx
 }
 
-func (t *Telemetry) Event(msg string, err error) {
-	// Logging
-	{
-		if err == nil {
-			t.logger.Info(msg)
-		} else {
-			t.logger.Error(msg, "error", err)
-		}
-	}
+// func (t *Telemetry) Event(msg string, err error) {
+// 	// Logging
+// 	{
+// 		if err == nil {
+// 			t.logger.Info(msg)
+// 		} else {
+// 			t.logger.Error(msg, "error", err)
+// 		}
+// 	}
 
-	// Tracing
-	if t.tracerReady && len(t.SpanStack) > 0 {
-		span := t.SpanStack[len(t.SpanStack)-1].Span
+// 	// Tracing
+// 	if t.tracerReady && len(t.SpanStack) > 0 {
+// 		span := t.SpanStack[len(t.SpanStack)-1].Span
 
-		if err == nil {
-			span.AddEvent(msg)
-		} else {
-			span.AddEvent(msg, trace.WithAttributes(
-				attribute.String("error.message", err.Error()),
-				attribute.Bool("error", true),
-			))
-			span.SetStatus(codes.Error, err.Error())
-		}
-	}
-}
+// 		if err == nil {
+// 			span.AddEvent(msg)
+// 		} else {
+// 			span.AddEvent(msg, trace.WithAttributes(
+// 				attribute.String("error.message", err.Error()),
+// 				attribute.Bool("error", true),
+// 			))
+// 			span.SetStatus(codes.Error, err.Error())
+// 		}
+// 	}
+// }
 
-func (t *Telemetry) Eventf(msg string, err error, a ...any) {
-	msgFinal := fmt.Sprintf(msg, a...)
-	t.Event(msgFinal, err)
-}
+// func (t *Telemetry) Eventf(msg string, err error, a ...any) {
+// 	msgFinal := fmt.Sprintf(msg, a...)
+// 	t.Event(msgFinal, err)
+// }
 
 func (t *Telemetry) SetAttrib(kv ...attribute.KeyValue) {
 	if t.tracerReady {
@@ -148,29 +151,39 @@ func (t *Telemetry) Inject(outgoingRequest *http.Request) {
 }
 
 func (t *Telemetry) Info(msg string, attrs ...any) {
-	t.logger.Info(msg, attrs...)
+	if t.loggerReady {
+		t.logger.Info(msg, attrs...)
+	}
 	if span := t.currentSpan(); span != nil {
 		span.AddEvent(msg)
 	}
 }
 
 func (t *Telemetry) Warn(msg string, attrs ...any) {
-	t.logger.Warn(msg, attrs...)
+	if t.loggerReady {
+		t.logger.Warn(msg, attrs...)
+	}
 	if span := t.currentSpan(); span != nil {
 		span.AddEvent(msg)
 	}
 }
 
 func (t *Telemetry) Debug(msg string, attrs ...any) {
-	t.logger.Debug(msg, attrs...)
+	if t.loggerReady {
+		t.logger.Debug(msg, attrs...)
+	}
 	if span := t.currentSpan(); span != nil {
 		span.AddEvent(msg)
 	}
 }
 
 func (t *Telemetry) Error(msg string, err error, attrs ...any) {
-	attrs = append(attrs, slog.Any("error", err))
-	t.logger.Error(msg, attrs...)
+	if t.loggerReady {
+		if err != nil {
+			attrs = append(attrs, slog.Any("error", err))
+		}
+		t.logger.Error(msg, attrs...)
+	}
 
 	if span := t.currentSpan(); span != nil {
 		span.AddEvent(msg, trace.WithAttributes(
