@@ -82,6 +82,7 @@ func main() {
 	server = gin.Default()
 
 	server.Use(otelgin.Middleware(os.Getenv("SERVICE_NAME")))
+	server.Use(utils.TEL.GetLoggingMiddleware())
 	server.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173", "http://localhost", "http://bookem.local"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
