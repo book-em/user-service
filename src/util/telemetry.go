@@ -169,7 +169,9 @@ func (t *Telemetry) Debug(msg string, attrs ...any) {
 }
 
 func (t *Telemetry) Error(msg string, err error, attrs ...any) {
+	attrs = append(attrs, slog.Any("error", err))
 	t.logger.Error(msg, attrs...)
+
 	if span := t.currentSpan(); span != nil {
 		span.AddEvent(msg, trace.WithAttributes(
 			attribute.String("error.message", err.Error()),
