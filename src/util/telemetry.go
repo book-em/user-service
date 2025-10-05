@@ -134,7 +134,11 @@ func (t *Telemetry) Top() SpanPair {
 }
 
 func (t *Telemetry) Ctx() context.Context {
-	return t.Top().Ctx
+	if len(t.SpanStack) > 0 {
+		return t.Top().Ctx
+	} else {
+		return context.Background() // Ehh...
+	}
 }
 
 func (t *Telemetry) SetAttrib(kv ...attribute.KeyValue) {
