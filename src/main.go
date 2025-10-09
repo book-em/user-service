@@ -10,10 +10,12 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	api "bookem-user-service/api"
+	"bookem-user-service/api/middleware"
 	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
 	repo "bookem-user-service/repo"
@@ -61,12 +63,6 @@ func connectToDb() {
 
 func main() {
 	ctx := context.Background()
-	// shutdown := utils.InitTracer(
-	// 	ctx,
-	// 	os.Getenv("SERVICE_NAME"),
-	// 	os.Getenv("DEPLOYMENT_ENV"),
-	// )
-	// defer shutdown(ctx)
 
 	shutdown2 := utils.TEL.Init(
 		ctx,
@@ -81,6 +77,7 @@ func main() {
 
 	server = gin.Default()
 
+	server.Use(middleware.PrometheusMiddleware())
 	server.Use(otelgin.Middleware(os.Getenv("SERVICE_NAME")))
 	server.Use(utils.TEL.GetLoggingMiddleware())
 	server.Use(cors.New(cors.Config{
@@ -92,6 +89,7 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
+	server.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	server.GET("/healthz", func(ctx *gin.Context) {
 		err := rawDB.Ping()
 		if err != nil {
