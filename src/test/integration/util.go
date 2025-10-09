@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bookem-user-service/client/roomclient"
 	"bookem-user-service/domain"
 	"bytes"
 	"encoding/json"
@@ -12,6 +13,8 @@ import (
 )
 
 const URL = "http://user-service:8080/api/"
+const URL_room = "http://room-service:8080/api/"
+const URL_reservation = "http://reservation-service:8080/api/"
 
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
@@ -147,11 +150,42 @@ func findUserById(id uint) (*http.Response, error) {
 	return resp, err
 }
 
-func deleteUserById(jwt string, id uint) (*http.Response, error) {
-	req, err := http.NewRequest(http.MethodDelete, URL+fmt.Sprintf("%d", id), nil)
+func deleteUser(jwt string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodDelete, URL, nil)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Add("Authorization", "Bearer "+jwt)
 	return http.DefaultClient.Do(req)
+}
+
+func createRoom(jwt string, dto roomclient.CreateRoomDTO) (*http.Response, error) {
+	jsonBytes, err := json.Marshal(dto)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, URL_room+"new", bytes.NewBuffer(jsonBytes))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", "Bearer "+jwt)
+	return http.DefaultClient.Do(req)
+}
+
+// ----------------------------------------------- Mock data
+
+const (
+	SMALL_IMG = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AKp//2Q=="
+)
+
+var DefaultRoomCreateDTO = roomclient.CreateRoomDTO{
+	HostID:        1,
+	Name:          "Room Name",
+	Description:   "Room Desc",
+	Address:       "Room Address",
+	MinGuests:     1,
+	MaxGuests:     5,
+	PhotosPayload: []string{SMALL_IMG},
+	Commodities:   []string{"WiFi"},
 }
