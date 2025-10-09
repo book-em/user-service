@@ -3,6 +3,15 @@ package roomclient
 import "time"
 
 type RoomDTO struct {
+	ID          uint     `json:"id"`
+	HostID      uint     `json:"hostID"`
+	Name        string   `json:"name"`
+	Description string   `json:"description"`
+	Address     string   `json:"address"`
+	MinGuests   uint     `json:"minGuests"`
+	MaxGuests   uint     `json:"maxGuests"`
+	Photos      []string `json:"photos"`
+	Commodities []string `json:"commodities"`
 }
 
 type ReservationDTO struct {
@@ -16,4 +25,15 @@ type ReservationDTO struct {
 	GuestCount         uint      `gorm:"not null"`
 	Cancelled          bool      `gorm:"not null"`
 	Cost               uint      `gorm:"not null"`
+}
+
+type CreateRoomDTO struct {
+	HostID        uint     `json:"hostID"`
+	Name          string   `json:"name"`
+	Description   string   `json:"description"`
+	Address       string   `json:"address"`
+	MinGuests     uint     `json:"minGuests"`
+	MaxGuests     uint     `json:"maxGuests"`
+	PhotosPayload []string `json:"photosPayload"`
+	Commodities   []string `json:"commodities"`
 }

@@ -10,66 +10,72 @@ import (
 
 func TestIntegration_Delete(t *testing.T) {
 	{
-		resp, _ := registerUser("user_deleted_guest_01", "1234", domain.Guest)
-		id := getUserFromRegister(resp).Id
-		jwt := loginUser2("user_deleted_guest_01", "1234")
-		resp, err := deleteUserById(jwt, id)
+		resp, _ := registerUser("guest1", "1234", domain.Guest)
+		jwt := loginUser2("guest1", "1234")
+		resp, err := deleteUser(jwt)
 
 		require.Nil(t, err)
 		require.Equal(t, http.StatusNoContent, resp.StatusCode)
 	}
 	{
-		resp, _ := registerUser("user_deleted_host_01", "1234", domain.Host)
-		id := getUserFromRegister(resp).Id
-		jwt := loginUser2("user_deleted_host_01", "1234")
-		resp, err := deleteUserById(jwt, id)
+		resp, _ := registerUser("host1", "1234", domain.Host)
+		jwt := loginUser2("host1", "1234")
+		resp, err := deleteUser(jwt)
 
 		require.Nil(t, err)
 		require.Equal(t, http.StatusNoContent, resp.StatusCode)
 	}
 }
 
-func TestIntegration_Delete_WrongUser(t *testing.T) {
-	registerUser("user_deleted_guest_03", "1234", domain.Guest)
-	id := uint(999999)
-	jwt := loginUser2("user_deleted_guest_03", "1234")
-	resp, err := deleteUserById(jwt, id)
+func TestIntegration_Delete_GuestHasActiveReservations(t *testing.T) {
+	resp, _ := registerUser("guest2", "1234", domain.Guest)
+	jwt := loginUser2("guest2", "1234")
 
-	require.Nil(t, err)
-	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
-}
+	// TODO: Once we can actually create reservations
+	//       we  will  add  active reservations here.
+	//       Until  then,  this   test   will   pass.
 
-func TestIntegration_Delete_GuestHasPendingReservations(t *testing.T) {
-	resp, _ := registerUser("user_deleted_guest_02", "1234", domain.Guest)
-	id := getUserFromRegister(resp).Id
-	jwt := loginUser2("user_deleted_guest_02", "1234")
-	resp, err := deleteUserById(jwt, id)
-
-	// TODO: Once we can actually create reservations, that needs to happen here so we can trigger a 400.
-	// Until then, this test will pass.
-
+	resp, err := deleteUser(jwt)
 	require.Nil(t, err)
 	require.Equal(t, http.StatusNoContent, resp.StatusCode)
 }
 
-func TestIntegration_Delete_HostHasPendingReservations(t *testing.T) {
-	resp, _ := registerUser("user_deleted_host_02", "1234", domain.Host)
+func TestIntegration_Delete_GuestHasNoActiveReservations(t *testing.T) {
+	resp, _ := registerUser("guest3", "1234", domain.Guest)
+	jwt := loginUser2("guest3", "1234")
+
+	// TODO: Once we can actually create reservations
+	//       we will add non-active reservations here.
+	//       Until  then,  this   test   will   pass.
+
+	resp, err := deleteUser(jwt)
+	require.Nil(t, err)
+	require.Equal(t, http.StatusNoContent, resp.StatusCode)
+}
+
+func TestIntegration_Delete_HostHasActiveReservations(t *testing.T) {
+	resp, _ := registerUser("host2", "1234", domain.Host)
 	id := getUserFromRegister(resp).Id
-	jwt := loginUser2("user_deleted_host_02", "1234")
-	resp, err := deleteUserById(jwt, id)
+	jwt := loginUser2("host2", "1234")
 
-	// TODO: Once we can actually create reservations, that needs to happen here so we can trigger a 400.
-	// Until then, this test will pass.
+	roomDTO := DefaultRoomCreateDTO
+	roomDTO.HostID = id
 
+	resp, _ = createRoom(jwt, roomDTO)
+
+	// TODO: Once we can actually create reservations
+	//       we  will  add  active reservations here.
+	//       Until  then,  this   test   will   pass.
+
+	resp, err := deleteUser(jwt)
 	require.Nil(t, err)
 	require.Equal(t, http.StatusNoContent, resp.StatusCode)
 }
 
 func TestIntegration_Delete_UserIsAdmin(t *testing.T) {
-	resp, _ := registerUser("user_deleted_admin_01", "1234", domain.Admin)
-	id := getUserFromRegister(resp).Id
-	jwt := loginUser2("user_deleted_admin_01", "1234")
-	resp, err := deleteUserById(jwt, id)
+	resp, _ := registerUser("admin1", "1234", domain.Admin)
+	jwt := loginUser2("admin1", "1234")
+	resp, err := deleteUser(jwt)
 
 	require.Nil(t, err)
 	require.Equal(t, http.StatusBadRequest, resp.StatusCode)
