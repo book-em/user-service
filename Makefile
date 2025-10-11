@@ -1,5 +1,12 @@
 .PHONY: run
 
+# Usage:
+# make [command] {MODE}
+#
+# command := run (default) / test / test_unit / test_integration
+# MODE :=    ci / local
+#
+
 run:
 	echo "Run using infrastructure/"
 
@@ -9,5 +16,4 @@ test_unit:
 	./run-tests.sh
 
 test_integration:
-	docker compose -f compose.integration.yml up --build --abort-on-container-exit --exit-code-from test-runner
-	docker compose -f compose.integration.yml down
+	./run-integration.sh $(MODE)
