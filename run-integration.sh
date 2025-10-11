@@ -42,6 +42,9 @@ done
 # Clone repos if CI
 
 if [[ "$mode" == "ci" ]]; then
+  echo "Extracting the test private key for $USER_SERVICE_REPO"
+  tar -xvzf "$USER_SERVICE_PATH/keys/keys.tar.gz" -C "$USER_SERVICE_PATH/keys"
+
   echo "Cloning $RESERVATION_SERVICE_REPO branch $RESERVATION_SERVICE_REPO into $RESERVATION_SERVICE_PATH"
   git clone --branch "$RESERVATION_SERVICE_BRANCH" "$RESERVATION_SERVICE_REPO" "$RESERVATION_SERVICE_PATH"
 
