@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	utils "bookem-user-service/util"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -38,6 +39,11 @@ func PrometheusMiddleware() gin.HandlerFunc {
 		size := float64(c.Writer.Size())
 
 		httpRequestsTotal.WithLabelValues(method, status, endpoint).Inc()
-		httpResponseSizeBytes.WithLabelValues(endpoint, status).Add(size)
+
+		if size >= 0 {
+			httpResponseSizeBytes.WithLabelValues(endpoint, status).Add(float64(size))
+		} else {
+			utils.TEL.Warn("Response size < 0, cannot push to Prometheus", "size", size)
+		}
 	}
 }
