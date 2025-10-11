@@ -31,13 +31,14 @@ func (c *reservationClient) GetActiveGuestReservations(ctx context.Context, jwt 
 
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/reservations/guest/active", c.baseURL), nil)
 	if err != nil {
+		utils.TEL.Error("preparing request error ", err)
 		return nil, err
 	}
 	req.Header.Add("Authorization", "Bearer "+jwt)
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
-		utils.TEL.Error("error ", err)
+		utils.TEL.Error("request error ", err)
 		return nil, err
 	}
 
