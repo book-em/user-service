@@ -22,7 +22,7 @@ func TestDelete_Success(t *testing.T) {
 
 	mockRepo.On("FindById", id).Return(user, nil)
 	mockRepo.On("Delete", id).Return()
-	mockReservationClient.On("GetActiveGuestReservations", jwt).Return([]roomclient.ReservationDTO{}, nil)
+	mockReservationClient.On("GetActiveGuestReservations", context.Background(), jwt).Return([]roomclient.ReservationDTO{}, nil)
 
 	err := svc.Delete(context.Background(), id, jwt)
 
@@ -53,7 +53,7 @@ func TestDelete_GuestHasActiveReservations(t *testing.T) {
 	mockRepo.On("FindById", id).Return(user, nil)
 	mockRepo.On("Delete", id).Return()
 	reservation := reservationclient.ReservationDTO{}
-	mockReservationClient.On("GetActiveGuestReservations", jwt).Return([]reservationclient.ReservationDTO{reservation}, nil)
+	mockReservationClient.On("GetActiveGuestReservations", context.Background(), jwt).Return([]reservationclient.ReservationDTO{reservation}, nil)
 
 	err := svc.Delete(context.Background(), id, jwt)
 
@@ -72,7 +72,7 @@ func TestDelete_HostHasActiveReservations(t *testing.T) {
 	mockRepo.On("FindById", id).Return(user, nil)
 	mockRepo.On("Delete", id).Return()
 	reservation := roomclient.ReservationDTO{}
-	mockRoomClient.On("GetActiveHostReservations", jwt).Return([]roomclient.ReservationDTO{reservation}, nil)
+	mockRoomClient.On("GetActiveHostReservations", context.Background(), jwt).Return([]roomclient.ReservationDTO{reservation}, nil)
 
 	err := svc.Delete(context.Background(), id, jwt)
 
