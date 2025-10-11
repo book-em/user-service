@@ -1,17 +1,18 @@
 package reservationclient
 
 import (
+	utils "bookem-user-service/util"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 )
 
 type ReservationClient interface {
 	// GetActiveGuestReservations finds all reservations made by `guest` that
 	// haven't completed yet. The user must be a guest.
-	GetActiveGuestReservations(jwt string) ([]ReservationDTO, error)
+	GetActiveGuestReservations(ctx context.Context, jwt string) ([]ReservationDTO, error)
 }
 
 type reservationClient struct {
@@ -24,8 +25,9 @@ func NewReservationClient() ReservationClient {
 	}
 }
 
-func (c *reservationClient) GetActiveGuestReservations(jwt string) ([]ReservationDTO, error) {
-	log.Printf("Get active guest reservations")
+func (c *reservationClient) GetActiveGuestReservations(ctx context.Context, jwt string) ([]ReservationDTO, error) {
+	utils.TEL.Push(ctx, "get-active-reservations-for-guest")
+	defer utils.TEL.Pop()
 
 	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/reservations/guest/active", c.baseURL), nil)
 	if err != nil {
@@ -35,19 +37,19 @@ func (c *reservationClient) GetActiveGuestReservations(jwt string) ([]Reservatio
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
-		log.Printf("Error %v", err)
+		utils.TEL.Error("error ", err)
 		return nil, err
 	}
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Parsing response error: %v", err)
+		utils.TEL.Error("parsing response error", err)
 		return nil, err
 	}
 
 	var obj []ReservationDTO
 	if err := json.Unmarshal(bodyBytes, &obj); err != nil {
-		log.Printf("JSON Unmarshall error: %v", err)
+		utils.TEL.Error("JSON unmarshall error", err)
 		return nil, err
 	}
 
