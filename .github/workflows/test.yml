@@ -84,4 +84,6 @@ jobs:
         run: chmod 400 keys/private_key.key
 
       - name: Run tests
-        run: make test_integration
+        run: | 
+          chmod +x ./run-integration.sh
+          make test_integration MODE=ci
