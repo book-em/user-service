@@ -11,7 +11,7 @@ import (
 )
 
 func TestDelete_GuestSuccess(t *testing.T) {
-	svc, mockRepo, mockReservationClient := createTestService()
+	svc, mockRepo, _, mockReservationClient := createTestService()
 
 	id := uint(1)
 	jwt := "token"
@@ -29,7 +29,7 @@ func TestDelete_GuestSuccess(t *testing.T) {
 }
 
 func TestDelete_HostSuccess(t *testing.T) {
-	svc, mockRepo, mockReservationClient := createTestService()
+	svc, mockRepo, _, mockReservationClient := createTestService()
 
 	id := uint(1)
 	jwt := "token"
@@ -47,7 +47,7 @@ func TestDelete_HostSuccess(t *testing.T) {
 }
 
 func TestDelete_UserNotFound(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	id := uint(1)
 	jwt := "token"
@@ -60,7 +60,7 @@ func TestDelete_UserNotFound(t *testing.T) {
 }
 
 func TestDelete_GuestHasActiveReservations(t *testing.T) {
-	svc, mockRepo, mockReservationClient := createTestService()
+	svc, mockRepo, _, mockReservationClient := createTestService()
 
 	id := uint(1)
 	jwt := "token"
@@ -79,7 +79,7 @@ func TestDelete_GuestHasActiveReservations(t *testing.T) {
 }
 
 func TestDelete_HostHasActiveReservations(t *testing.T) {
-	svc, mockRepo, mockReservationClient := createTestService()
+	svc, mockRepo, _, mockReservationClient := createTestService()
 
 	id := uint(1)
 	jwt := "token"
@@ -98,7 +98,7 @@ func TestDelete_HostHasActiveReservations(t *testing.T) {
 }
 
 func TestDelete_TriedDeletingAdmin(t *testing.T) {
-	svc, mockRepo, _ := createTestService()
+	svc, mockRepo, _, _ := createTestService()
 
 	id := uint(1)
 	jwt := "token"

@@ -2,6 +2,7 @@ package api
 
 import (
 	"bookem-user-service/client/reservationclient"
+	"bookem-user-service/client/roomclient"
 	"bookem-user-service/domain"
 	repo "bookem-user-service/repo"
 	util "bookem-user-service/util"
@@ -25,11 +26,12 @@ type Service interface {
 
 type service struct {
 	repo              repo.Repository
+	roomClient        roomclient.RoomClient
 	reservationClient reservationclient.ReservationClient
 }
 
-func NewService(r repo.Repository, reservationClient reservationclient.ReservationClient) Service {
-	return &service{r, reservationClient}
+func NewService(r repo.Repository, roomClient roomclient.RoomClient, reservationClient reservationclient.ReservationClient) Service {
+	return &service{r, roomClient, reservationClient}
 }
 
 func (s *service) Register(ctx context.Context, dto *domain.UserCreateDTO) (*domain.User, error) {
