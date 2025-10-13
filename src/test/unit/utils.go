@@ -2,7 +2,6 @@ package test
 
 import (
 	"bookem-user-service/client/reservationclient"
-	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
 	service "bookem-user-service/service"
 	"context"
@@ -10,14 +9,13 @@ import (
 	mock "github.com/stretchr/testify/mock"
 )
 
-func createTestService() (service.Service, *MockRepo, *MockRoomClient, *MockReservationClient) {
+func createTestService() (service.Service, *MockRepo, *MockReservationClient) {
 	mockRepo := new(MockRepo)
-	mockRoomClient := new(MockRoomClient)
 	mockReservationClient := new(MockReservationClient)
 
-	svc := service.NewService(mockRepo, mockRoomClient, mockReservationClient)
+	svc := service.NewService(mockRepo, mockReservationClient)
 
-	return svc, mockRepo, mockRoomClient, mockReservationClient
+	return svc, mockRepo, mockReservationClient
 }
 
 // ---------------------------------------------- Mock repo
@@ -60,18 +58,6 @@ func (m *MockRepo) Delete(id uint) {
 	m.Called(id)
 }
 
-// ---------------------------------------------- Mock room client
-
-type MockRoomClient struct {
-	mock.Mock
-}
-
-func (m *MockRoomClient) GetActiveHostReservations(ctx context.Context, jwt string) ([]roomclient.ReservationDTO, error) {
-	args := m.Called(ctx, jwt)
-	reservations, _ := args.Get(0).([]roomclient.ReservationDTO)
-	return reservations, args.Error(1)
-}
-
 // ---------------------------------------------- Mock reservation client
 
 type MockReservationClient struct {
@@ -79,6 +65,12 @@ type MockReservationClient struct {
 }
 
 func (m *MockReservationClient) GetActiveGuestReservations(ctx context.Context, jwt string) ([]reservationclient.ReservationDTO, error) {
+	args := m.Called(ctx, jwt)
+	reservations, _ := args.Get(0).([]reservationclient.ReservationDTO)
+	return reservations, args.Error(1)
+}
+
+func (m *MockReservationClient) GetActiveHostReservations(ctx context.Context, jwt string) ([]reservationclient.ReservationDTO, error) {
 	args := m.Called(ctx, jwt)
 	reservations, _ := args.Get(0).([]reservationclient.ReservationDTO)
 	return reservations, args.Error(1)
