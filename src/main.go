@@ -17,7 +17,6 @@ import (
 	api "bookem-user-service/api"
 	"bookem-user-service/api/middleware"
 	"bookem-user-service/client/reservationclient"
-	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
 	repo "bookem-user-service/repo"
 	service "bookem-user-service/service"
@@ -100,11 +99,10 @@ func main() {
 		ctx.JSON(http.StatusOK, nil)
 	})
 
-	roomclient := roomclient.NewRoomClient()
 	reservationclient := reservationclient.NewReservationClient()
 
 	repo := repo.NewRepository(dB)
-	service := service.NewService(repo, roomclient, reservationclient)
+	service := service.NewService(repo, reservationclient)
 	handler := api.NewHandler(service)
 	route := *api.NewRoute(handler)
 

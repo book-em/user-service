@@ -12,7 +12,7 @@ import (
 )
 
 func TestSuccess(t *testing.T) {
-	svc, mockRepo, _, _ := createTestService()
+	svc, mockRepo, _ := createTestService()
 
 	dto := *defaultUserDTO
 
@@ -29,7 +29,7 @@ func TestSuccess(t *testing.T) {
 }
 
 func TestUsernameExists(t *testing.T) {
-	svc, mockRepo, _, _ := createTestService()
+	svc, mockRepo, _ := createTestService()
 
 	dto := *defaultUserDTO
 	dto.Username = "username"
@@ -46,7 +46,7 @@ func TestUsernameExists(t *testing.T) {
 }
 
 func TestEmailExists(t *testing.T) {
-	svc, mockRepo, _, _ := createTestService()
+	svc, mockRepo, _ := createTestService()
 
 	dto := *defaultUserDTO
 	dto.Username = "user1"
@@ -65,7 +65,7 @@ func TestEmailExists(t *testing.T) {
 }
 
 func TestCreateFails(t *testing.T) {
-	svc, mockRepo, _, _ := createTestService()
+	svc, mockRepo, _ := createTestService()
 
 	dto := *defaultUserDTO
 

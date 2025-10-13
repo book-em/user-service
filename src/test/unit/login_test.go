@@ -12,7 +12,7 @@ import (
 )
 
 func TestLogin_Success(t *testing.T) {
-	svc, mockRepo, _, _ := createTestService()
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 
@@ -53,7 +53,7 @@ func TestLogin_Success(t *testing.T) {
 }
 
 func TestLogin_UserNotFound(t *testing.T) {
-	svc, mockRepo, _, _ := createTestService()
+	svc, mockRepo, _ := createTestService()
 
 	dto := domain.LoginDTO{
 		UsernameOrEmail: "user123",
@@ -72,7 +72,7 @@ func TestLogin_UserNotFound(t *testing.T) {
 }
 
 func TestLogin_WrongPassword(t *testing.T) {
-	svc, mockRepo, _, _ := createTestService()
+	svc, mockRepo, _ := createTestService()
 
 	dto := domain.LoginDTO{
 		UsernameOrEmail: "user123",
@@ -104,7 +104,7 @@ func TestLogin_WrongPassword(t *testing.T) {
 }
 
 func TestLogin_JWTFailed(t *testing.T) {
-	svc, mockRepo, _, _ := createTestService()
+	svc, mockRepo, _ := createTestService()
 
 	// Prepare
 
