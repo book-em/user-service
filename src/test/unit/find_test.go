@@ -9,7 +9,7 @@ import (
 )
 
 func TestFindById_Success(t *testing.T) {
-	svc, mockRepo, _, _ := createTestService()
+	svc, mockRepo, _ := createTestService()
 
 	id := uint(1)
 
@@ -26,7 +26,7 @@ func TestFindById_Success(t *testing.T) {
 }
 
 func TestFindById_UserNotFound(t *testing.T) {
-	svc, mockRepo, _, _ := createTestService()
+	svc, mockRepo, _ := createTestService()
 
 	id := uint(1)
 
