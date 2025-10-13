@@ -9,13 +9,14 @@ import (
 	mock "github.com/stretchr/testify/mock"
 )
 
-func createTestService() (service.Service, *MockRepo, *MockReservationClient) {
+func createTestService() (service.Service, *MockRepo, *MockRoomClient, *MockReservationClient) {
 	mockRepo := new(MockRepo)
+	mockRoomClient := new(MockRoomClient)
 	mockReservationClient := new(MockReservationClient)
 
-	svc := service.NewService(mockRepo, mockReservationClient)
+	svc := service.NewService(mockRepo, mockRoomClient, mockReservationClient)
 
-	return svc, mockRepo, mockReservationClient
+	return svc, mockRepo, mockRoomClient, mockReservationClient
 }
 
 // ---------------------------------------------- Mock repo
@@ -56,6 +57,12 @@ func (m *MockRepo) Update(user *domain.User) error {
 
 func (m *MockRepo) Delete(id uint) {
 	m.Called(id)
+}
+
+// ---------------------------------------------- Mock room client
+
+type MockRoomClient struct {
+	mock.Mock
 }
 
 // ---------------------------------------------- Mock reservation client
