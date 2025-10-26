@@ -3,9 +3,11 @@ name: Sonarqube Analysis
 on:
   push:
     branches:
+      - feature-sonarqube # Temporary
+  pull_request:
+    branches:
       - master
       - develop
-      - feature-sonarqube # Temporary
 
 jobs:
   sonarqube:
