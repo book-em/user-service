@@ -315,12 +315,22 @@ func (s *service) Delete(ctx context.Context, userId uint, jwt string) error {
 		return err
 	}
 
+	// Delete rooms
+
+	if user.Role == domain.Host {
+		_, err := s.roomClient.DeleteHostRooms(ctx, jwt)
+		if err != nil {
+			util.TEL.Error("could not delete host rooms", err)
+			return err
+		}
+	}
+
 	// Delete user
 
 	util.TEL.Push(ctx, "delete-user-in-db")
 	defer util.TEL.Pop()
 
-	s.repo.Delete(user.ID)
+	s.repo.Delete(user)
 	util.TEL.Info("User deleted", "id", userId)
 
 	return nil

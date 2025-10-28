@@ -11,6 +11,7 @@ type RoomDTO struct {
 	Photos      []string `json:"photos"`
 	Commodities []string `json:"commodities"`
 	AutoApprove bool     `json:"autoApprove"`
+	Deleted     bool     `json:"deleted"`
 }
 
 type CreateRoomDTO struct {
