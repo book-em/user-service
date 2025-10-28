@@ -9,6 +9,7 @@ var (
 	ErrDBInternal         = errors.New("database internal error")
 	ErrInvalidInput       = errors.New("invalid input")
 	ErrLoginFailed        = errors.New("invalid user or password")
+	ErrDeletedAccount     = errors.New("deleted account")
 	ErrUnauthorized       = errors.New("unauthorized")
 	ErrPasswordsNotMatch  = errors.New("confirm password does not match")
 	ErrPasswordNotChanged = errors.New("password must be different")
@@ -16,8 +17,8 @@ var (
 	ErrNotFound           = errors.New("not found")
 	ErrWrongPassword      = errors.New("incorrect password")
 
-	ErrGuestHasReservations = errors.New("user has pending reservations")
-	ErrHostHasReservations  = errors.New("user has room(s) with pending reservations")
+	ErrGuestHasReservations = errors.New("user has active reservations")
+	ErrHostHasReservations  = errors.New("user has room(s) with active reservations")
 	ErrCannotDeleteAdmin    = errors.New("admin accounts cannot be deleted")
 )
 
