@@ -96,6 +96,13 @@ func (s *service) Login(ctx context.Context, dto domain.LoginDTO) (string, error
 		return "", domain.ErrLoginFailed
 	}
 
+	util.TEL.Push(ctx, "check-account-deletion")
+	defer util.TEL.Pop()
+	if user.Deleted {
+		util.TEL.Error("account is deleted", nil, "username_or_email", dto.UsernameOrEmail)
+		return "", domain.ErrDeletedAccount
+	}
+
 	util.TEL.Push(ctx, "verify-password")
 	defer util.TEL.Pop()
 
