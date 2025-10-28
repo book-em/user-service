@@ -2,6 +2,7 @@ package test
 
 import (
 	"bookem-user-service/client/reservationclient"
+	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
 	"context"
 	"fmt"
@@ -20,7 +21,7 @@ func TestDelete_GuestSuccess(t *testing.T) {
 	user.Role = domain.Guest
 
 	mockRepo.On("FindById", id).Return(user, nil)
-	mockRepo.On("Delete", id).Return()
+	mockRepo.On("Delete", user).Return(nil)
 	mockReservationClient.On("GetActiveGuestReservations", context.Background(), jwt).Return([]reservationclient.ReservationDTO{}, nil)
 
 	err := svc.Delete(context.Background(), id, jwt)
@@ -29,7 +30,7 @@ func TestDelete_GuestSuccess(t *testing.T) {
 }
 
 func TestDelete_HostSuccess(t *testing.T) {
-	svc, mockRepo, _, mockReservationClient := createTestService()
+	svc, mockRepo, mockRoomClient, mockReservationClient := createTestService()
 
 	id := uint(1)
 	jwt := "token"
@@ -38,8 +39,9 @@ func TestDelete_HostSuccess(t *testing.T) {
 	user.Role = domain.Host
 
 	mockRepo.On("FindById", id).Return(user, nil)
-	mockRepo.On("Delete", id).Return()
+	mockRepo.On("Delete", user).Return(nil)
 	mockReservationClient.On("GetActiveHostReservations", context.Background(), jwt).Return([]reservationclient.ReservationDTO{}, nil)
+	mockRoomClient.On("DeleteHostRooms", context.Background(), jwt).Return([]roomclient.RoomDTO{}, nil)
 
 	err := svc.Delete(context.Background(), id, jwt)
 
@@ -68,7 +70,7 @@ func TestDelete_GuestHasActiveReservations(t *testing.T) {
 	user.ID = id
 	user.Role = domain.Guest
 	mockRepo.On("FindById", id).Return(user, nil)
-	mockRepo.On("Delete", id).Return()
+	mockRepo.On("Delete", id).Return(nil)
 	reservation := reservationclient.ReservationDTO{}
 	mockReservationClient.On("GetActiveGuestReservations", context.Background(), jwt).Return([]reservationclient.ReservationDTO{reservation}, nil)
 
@@ -87,7 +89,7 @@ func TestDelete_HostHasActiveReservations(t *testing.T) {
 	user.ID = id
 	user.Role = domain.Host
 	mockRepo.On("FindById", id).Return(user, nil)
-	mockRepo.On("Delete", id).Return()
+	mockRepo.On("Delete", id).Return(nil)
 	reservation := reservationclient.ReservationDTO{}
 	mockReservationClient.On("GetActiveHostReservations", context.Background(), jwt).Return([]reservationclient.ReservationDTO{reservation}, nil)
 
@@ -106,7 +108,7 @@ func TestDelete_TriedDeletingAdmin(t *testing.T) {
 	user.ID = id
 	user.Role = domain.Admin
 	mockRepo.On("FindById", id).Return(user, nil)
-	mockRepo.On("Delete", id).Return()
+	mockRepo.On("Delete", id).Return(nil)
 
 	err := svc.Delete(context.Background(), id, jwt)
 
