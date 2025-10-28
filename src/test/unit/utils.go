@@ -2,6 +2,7 @@ package test
 
 import (
 	"bookem-user-service/client/reservationclient"
+	"bookem-user-service/client/roomclient"
 	domain "bookem-user-service/domain"
 	service "bookem-user-service/service"
 	"context"
@@ -55,14 +56,21 @@ func (m *MockRepo) Update(user *domain.User) error {
 	return args.Error(0)
 }
 
-func (m *MockRepo) Delete(id uint) {
-	m.Called(id)
+func (m *MockRepo) Delete(user *domain.User) error {
+	args := m.Called(user)
+	return args.Error(0)
 }
 
 // ---------------------------------------------- Mock room client
 
 type MockRoomClient struct {
 	mock.Mock
+}
+
+func (m *MockRoomClient) DeleteHostRooms(ctx context.Context, jwt string) ([]roomclient.RoomDTO, error) {
+	args := m.Called(ctx, jwt)
+	rooms, _ := args.Get(0).([]roomclient.RoomDTO)
+	return rooms, args.Error(1)
 }
 
 // ---------------------------------------------- Mock reservation client
