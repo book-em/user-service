@@ -18,6 +18,7 @@ type UserDTO struct {
 	Surname  string `json:"surname" `
 	Address  string `json:"address" `
 	Role     string `json:"role"    `
+	Deleted  bool   `json:"deleted" `
 }
 
 type UserUpdateDTO struct {
@@ -38,6 +39,7 @@ func NewUserDTO(user *User) UserDTO {
 		Surname:  user.Surname,
 		Address:  user.Address,
 		Role:     string(user.Role),
+		Deleted:  user.Deleted,
 	}
 }
 
