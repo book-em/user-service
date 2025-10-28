@@ -17,4 +17,5 @@ type User struct {
 	Surname  string   `json:"surname"  gorm:"type:varchar(60);not null;"`
 	Role     UserRole `json:"role"     gorm:"type:varchar(5);not null;check:role IN ('guest','host','admin')"`
 	Address  string   `json:"address"  gorm:"type:varchar(150);not null"`
+	Deleted  bool     `json:"deleted"  gorm:"type:boolean;not null;default:false"`
 }
