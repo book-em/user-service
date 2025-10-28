@@ -14,3 +14,22 @@ type ReservationDTO struct {
 	Cancelled          bool      `gorm:"not null"`
 	Cost               uint      `gorm:"not null"`
 }
+
+type CreateReservationRequestDTO struct {
+	RoomID     uint      `json:"roomId"`
+	DateFrom   time.Time `json:"dateFrom"`
+	DateTo     time.Time `json:"dateTo"`
+	GuestCount uint      `json:"guestCount"`
+}
+
+type ReservationRequestDTO struct {
+	ID               uint      `json:"id"`
+	RoomID           uint      `json:"roomId"`
+	DateFrom         time.Time `json:"dateFrom"`
+	DateTo           time.Time `json:"dateTo"`
+	GuestCount       uint      `json:"guestCount"`
+	GuestID          uint      `json:"guestId"`
+	Status           string    `json:"status"`
+	Cost             uint      `json:"cost"`
+	GuestCancelCount uint      `json:"guestCancelCount"`
+}
